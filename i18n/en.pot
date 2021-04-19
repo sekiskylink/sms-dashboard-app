@@ -1,0 +1,134 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2021-04-14T14:49:16.950Z\n"
+"PO-Revision-Date: 2021-04-14T14:49:16.950Z\n"
+
+msgid "Are you sure you want to cancel? Unsaved changes will be lost"
+msgstr ""
+
+msgid "No, stay on page"
+msgstr ""
+
+msgid "Yes, cancel"
+msgstr ""
+
+msgid "Delete selected"
+msgstr ""
+
+msgid "Log Event"
+msgstr ""
+
+msgid "Please Select"
+msgstr ""
+
+msgid ""
+"Please make sure the value of this input matches the value in "
+"\"{{otherField}}\"."
+msgstr ""
+
+msgid "District"
+msgstr ""
+
+msgid "Districts"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "per page"
+msgstr ""
+
+msgid "Viewing {{firstItem}}-{{lastItem}} of {{total}}"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Page"
+msgstr ""
+
+msgid "of {{pageCount}}"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "No SMSes to display"
+msgstr ""
+
+msgid "User group"
+msgstr ""
+
+msgid "Overview: SMS Dashboard"
+msgstr ""
+
+msgid "View all received surveillence signals and action on them"
+msgstr ""
+
+msgid "Received SMS messages"
+msgstr ""
+
+msgid "Open logs of all SMS alerts received by DHIS2."
+msgstr ""
+
+msgid "View all received SMS alerts"
+msgstr ""
+
+msgid "Filter by phone number"
+msgstr ""
+
+msgid "Filter by status"
+msgstr ""
+
+msgid "Reset filter"
+msgstr ""
+
+msgid "Received"
+msgstr ""
+
+msgid "Something went wrong whilst loading received SMSes"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Sender"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Incoming"
+msgstr ""
+
+msgid "Processed"
+msgstr ""
+
+msgid "Processing"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Unhandled"
+msgstr ""

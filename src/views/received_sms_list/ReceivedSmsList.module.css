@@ -1,0 +1,9 @@
+.container {
+    max-width: 100%; /*800px*/
+}
+
+.header {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: var(--spacers-dp16);
+}

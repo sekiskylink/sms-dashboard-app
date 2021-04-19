@@ -1,0 +1,45 @@
+{
+    "name": "sms-configuration-app",
+    "version": "1.0.0",
+    "description": "",
+    "license": "BSD-3-Clause",
+    "author": "Jan-Gerke Salomon <jan-gerke@dhis2.org>",
+    "private": true,
+    "scripts": {
+        "build": "d2-app-scripts build",
+        "start": "d2-app-scripts start",
+        "test": "d2-app-scripts test",
+        "cy:start": "BROWSER=none yarn start",
+        "cy:open": "d2-utils-cypress open --appStart 'yarn cy:start'",
+        "cy:run": "d2-utils-cypress run --appStart 'yarn cy:start'",
+        "lint:js": "d2-style js check",
+        "lint:text": "d2-style text check",
+        "lint:staged": "yarn lint:js --staged && yarn lint:text --staged",
+        "lint": "yarn lint:js && yarn lint:text",
+        "format:js": "d2-style js apply",
+        "format:text": "d2-style text apply",
+        "format:staged": "yarn format:js --staged && yarn format:text --staged",
+        "format": "yarn format:js && yarn format:text"
+    },
+    "devDependencies": {
+        "@dhis2/cli-app-scripts": "^5.2.0",
+        "@dhis2/cli-style": "^7.0.0",
+        "@dhis2/cli-utils-cypress": "^5.1.1",
+        "@dhis2/cypress-commands": "^5.1.1",
+        "@dhis2/cypress-plugins": "^7.0.0",
+        "@testing-library/react-hooks": "^3.3.0",
+        "react-test-renderer": "^16.13.1"
+    },
+    "dependencies": {
+        "@dhis2/app-runtime": "^2.2.2",
+        "@dhis2/app-runtime-adapter-d2": "^1.0.2",
+        "@dhis2/prop-types": "^2.0.0",
+        "@dhis2/ui": "^5.6.2",
+        "antd": "^4.14.1",
+        "classnames": "^2.2.6",
+        "d2": "^31.10.0",
+        "lodash.debounce": "^4.0.8",
+        "moment": "^2.29.1",
+        "react-router-dom": "^5.2.0"
+    }
+}
