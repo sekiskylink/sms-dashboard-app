@@ -100,6 +100,7 @@ const Filter = () => {
             className={styles.container}
         >
             <div className={styles.inputStrip}>
+                {/*
                 <SingleSelectField
                     label={i18n.t('Filter by status')}
                     inputWidth="200px"
@@ -115,6 +116,7 @@ const Filter = () => {
                         />
                     ))}
                 </SingleSelectField>
+                */}
                 <PhoneInputField
                     phoneNumber={phoneNumber}
                     onChange={handlePhoneNumberChange}

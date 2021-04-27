@@ -9,8 +9,12 @@ export const eventConfs = {
     phone: "fb9Fs09UNN8",
     rumorSource: "nvYHp4qr35Q",
     actionTaken: "Y9ahw4POban",
-    followupAction: "sapRdA8sojg",
-    // comment: "MYIDtPnvepJ"
+    followupAction: "ER1Z7hl3loe",
+    status: "nFNdf8wcGNu",
+    text: "Yb5K4WNhFcq",
+    status_update_date: "Pwr85z28pXn",
+    comment: "MYIDtPnvepJ",
+    suspectedDisease: "elGqdsbgahz",
 }
 
 /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 'EOC Core Staff', 'System Admin', 'National IDSR Team'*/
@@ -43,6 +47,24 @@ export const fetchEvent = async (eventID) => {
     }
 }
 
+export const eventToMessage = (e) => {
+    const {orgUnit, dataValues, created, event} = e
+    var cValues = {}
+    const eValues = dataValues.map(i => {
+        var y = {}
+        const k = Object.keys(eventConfs).find(
+            key => eventConfs[key] === i['dataElement'])
+        y[k] = i['value']
+        cValues[k] = i['value']
+        return y
+    })
+    cValues['district'] = orgUnit
+    cValues['notifyusers'] = []
+    cValues['receiveddate'] = created
+    cValues['id'] = event
+    return cValues
+}
+
 export const sendNotifications = async (messagePayLoad) => {
     const d2 = await getInstance()
     const api = d2.Api.getApi()
@@ -61,26 +83,6 @@ export const saveEvent = async (eventPayload) => {
     } catch {
         console.log("Error Saving Event: ", eventPayload)
     }
-}
-/*
-export const getUserOrgUnitProgramEvents = async () => {
-    const d2 = await getInstance()
-    const api = d2.Api.getApi()
-
-    const currentUser = d2.currentUser
-
-}
-*/  
-
-export const userIsGlobalUser = async () => {
-    const d2 = await getInstance()
-    const currentUser = d2.currentUser
-    const userGroupsModelCollection = await currentUser.getUserGroups()
-    const myUserGroupsArray = userGroupsModelCollection.toArray().map(ug => ug.id)
-    console.log("CURRENT USER Groups:", myUserGroupsArray)
-
-    /* compare with the global allowedUserGroups - if any usergroup exists in global*/
-    return myUserGroupsArray.some((val) => allowedUserGroups.indexOf(val) !== -1)
 }
 
 export const getUserEventIDs = async () => {
@@ -110,17 +112,4 @@ export const getUserEventIDs = async () => {
         }
     }
     return []
-}
-
-export const getUserOrg = async () => {
-    const d2 = await getInstance()
-    const api = d2.Api.getApi()
-
-    const currentUser = d2.currentUser
-    const orgUnitsModelCollection = await currentUser.getOrganisationUnits()
-    const myOrgUnits = orgUnitsModelCollection.toArray().map(org => org.id)
-    if (myOrgUnits.length > 0){
-        return myOrgUnits[0]
-    }
-    return ""
 }

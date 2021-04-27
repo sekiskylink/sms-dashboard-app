@@ -13,11 +13,11 @@ import {
     TableRowHead,
 } from '@dhis2/ui'
 import { Pagination } from '../pagination/Pagination'
-import {useReadUserOrgUnit, useReadUserIsGlobal, useReadUserEventIDs } from '../hooks'
-import {getUserEventIDs, getUserOrg, userIsGlobalUser} from '../events'
+import {useStore} from '../context/context'
+import { observer } from 'mobx-react-lite'
 import styles from './SmsTable.module.css'
 
-export const SmsTable = ({
+export const SmsTable = observer(({
     messages,
     pager,
     selectedIds,
@@ -25,27 +25,8 @@ export const SmsTable = ({
     columns,
     rowRenderFn,
 }) => {
-    //const userOrg = useReadUserOrgUnit()
-    const [userIsGlobal, setUserIsGlobal] = useState(useReadUserIsGlobal())
-    const getUserGlobalStatus = async () => {
-        const org = await userIsGlobalUser()
-        setUserIsGlobal(org)
-    }
-    useEffect(() => {
-        getUserGlobalStatus()
-    }, [userIsGlobal])
-    const [userEvents, setUserEvents] = useState(useReadUserEventIDs())
-    const getUserEvents = async () => {
-        const events = await getUserEventIDs()
-        setUserEvents(events)
-    }
-    useEffect(()=> {
-        getUserEvents()
-    }, [])
-    /*
-    */
-
-    console.log("User Is Global", userIsGlobal, "Events", userEvents)
+    const store = useStore()
+    console.log("User Is Global", store.IsGlobalUser)
 
     const selectedIdSet = new Set(selectedIds)
     const allSelected =
@@ -84,7 +65,7 @@ export const SmsTable = ({
                 </TableRowHead>
             </TableHead>
             <TableBody>
-                {messages.length === 0 || (!userIsGlobal && userEvents.length === 0) ? (
+                {messages.length === 0 ? (
                     <TableRow>
                         <TableCell
                             colSpan={String(columns.length)}
@@ -95,7 +76,7 @@ export const SmsTable = ({
                     </TableRow>
                 ) :  (
                     messages.map(message => {
-                        if (userIsGlobal || userEvents.indexOf(message.id) !== -1) {
+                        if (store.IsGlobalUser ) {
                         return (<TableRow key={message.id}>
                             <TableCell>
                                 <Checkbox
@@ -119,7 +100,7 @@ export const SmsTable = ({
             </TableFoot>
         </Table>
     )
-}
+})
 
 SmsTable.propTypes = {
     columns: PropTypes.arrayOf(PropTypes.string).isRequired,

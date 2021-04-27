@@ -24,7 +24,7 @@ export const FieldUserGroup = ({name, form}) => {
             </Select>
         )
     }
-    console.log("userGroups =>", data)
+    // console.log("userGroups =>", data)
     const { userGroups } = data.userGroups
     return (
         <Select 

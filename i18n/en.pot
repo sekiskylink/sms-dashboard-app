@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2021-04-14T14:49:16.950Z\n"
-"PO-Revision-Date: 2021-04-14T14:49:16.950Z\n"
+"POT-Creation-Date: 2021-04-27T11:39:59.610Z\n"
+"PO-Revision-Date: 2021-04-27T11:39:59.610Z\n"
 
 msgid "Are you sure you want to cancel? Unsaved changes will be lost"
 msgstr ""
@@ -20,21 +20,7 @@ msgstr ""
 msgid "Delete selected"
 msgstr ""
 
-msgid "Log Event"
-msgstr ""
-
-msgid "Please Select"
-msgstr ""
-
-msgid ""
-"Please make sure the value of this input matches the value in "
-"\"{{otherField}}\"."
-msgstr ""
-
-msgid "District"
-msgstr ""
-
-msgid "Districts"
+msgid "No SMSes to display"
 msgstr ""
 
 msgid "Show"
@@ -58,10 +44,48 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-msgid "No SMSes to display"
+msgid "Log Event"
+msgstr ""
+
+msgid "Please Select"
+msgstr ""
+
+msgid ""
+"Please make sure the value of this input matches the value in "
+"\"{{otherField}}\"."
+msgstr ""
+
+msgid "District"
+msgstr ""
+
+msgid "Districts"
 msgstr ""
 
 msgid "User group"
+msgstr ""
+
+msgid "Filter by District"
+msgstr ""
+
+msgid "Reset filter"
+msgstr ""
+
+msgid "Alerts"
+msgstr ""
+
+msgid "Something went wrong whilst loading received Alerts"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Received"
+msgstr ""
+
+msgid "Action"
 msgstr ""
 
 msgid "Overview: SMS Dashboard"
@@ -79,34 +103,40 @@ msgstr ""
 msgid "View all received SMS alerts"
 msgstr ""
 
+msgid "Forwarded Alerts"
+msgstr ""
+
+msgid "Open all the alerts forwarded to my Organisation Unit"
+msgstr ""
+
+msgid "View all my alerts"
+msgstr ""
+
+msgid "My Visualizations"
+msgstr ""
+
+msgid "view and filter my visualizations"
+msgstr ""
+
+msgid "View my Visualizations"
+msgstr ""
+
 msgid "Filter by phone number"
 msgstr ""
 
 msgid "Filter by status"
 msgstr ""
 
-msgid "Reset filter"
-msgstr ""
-
-msgid "Received"
+msgid "Received SMS"
 msgstr ""
 
 msgid "Something went wrong whilst loading received SMSes"
-msgstr ""
-
-msgid "Message"
-msgstr ""
-
-msgid "Phone number"
 msgstr ""
 
 msgid "Status"
 msgstr ""
 
 msgid "Sender"
-msgstr ""
-
-msgid "Action"
 msgstr ""
 
 msgid "Unknown"
@@ -131,4 +161,7 @@ msgid "Sent"
 msgstr ""
 
 msgid "Unhandled"
+msgstr ""
+
+msgid "Visualizations"
 msgstr ""

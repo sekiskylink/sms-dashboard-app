@@ -1,6 +1,6 @@
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom'
 import { CssVariables } from '@dhis2/ui'
-import React, {useState} from 'react'
+import React from 'react'
 import styles from './App.module.css'
 
 import { AlertHandler } from './notifications'
@@ -8,16 +8,23 @@ import { Navigation } from './navigation'
 import {
     RECEIVED_SMS_LIST_PATH,
     ReceivedSmsList,
+    ReceivedEventsList,
     HOME_PATH,
     Home,
+    RECEIVED_ALERTS_PATH,
 } from './views'
+import {MainRoutes} from './Routes'
 import { dataTest } from './dataTest'
 import { D2Shim } from '@dhis2/app-runtime-adapter-d2'
-// import { getUserSettings } from 'd2'
+import { Provider } from "./context/context"
 import 'antd/dist/antd.css';
+import Store from './Store'
 
 const appConfig = {
-    schemas: [],
+    schemas: [
+        'organisationUnits',
+        'userGroups'
+    ],
   };
   
   const authorization = process.env.REACT_APP_DHIS2_AUTHORIZATION || null;
@@ -32,32 +39,17 @@ const App = () => {
                 if (!d2) {
                     return null;
                 } else {
+                    const store = new Store(d2)
+                    
                     return (
+                        <Provider value={store}>
                         <AlertHandler>
                             <CssVariables spacers colors />
-                            <HashRouter>
-                                <div className={styles.container} data-test={dataTest('app')}>
-                                    <div className={styles.sidebar}>
-                                        <Navigation />
-                                    </div>
 
-                                    <main className={styles.content}>
-                                        <Switch>
-                                            <Route exact path={HOME_PATH} component={Home} />
+                            <MainRoutes/>
 
-                                            {/* View received sms */ ''}
-                                            <Route
-                                                exact
-                                                path={RECEIVED_SMS_LIST_PATH}
-                                                component={ReceivedSmsList}
-                                            />
-
-                                            <Redirect from="*" to={HOME_PATH} />
-                                        </Switch>
-                                    </main>
-                                </div>
-                            </HashRouter>
                         </AlertHandler>
+                        </Provider>
                     )
                 }
             }}

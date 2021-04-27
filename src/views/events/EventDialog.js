@@ -1,35 +1,31 @@
 // import { PropTypes } from '@dhis2/prop-types'
-import React, {useState, useEffect} from 'react'
+import React, { useState } from 'react'
 import moment from 'moment';
 import {Modal, Form, Button, Input, DatePicker, Space, Row, Col} from 'antd'
-import { FieldDistrict } from '../orgUnit/FieldDistrict'
-import {FieldOptionSet} from './FieldOptionSet'
-import {FieldStatusOptionSet} from './FieldStatusOptionSet'
-import {FieldUserGroup} from './FieldUserGroup'
-import {useStore} from '../context/context'
-import { observer } from 'mobx-react-lite'
+import { FieldDistrict } from '../../orgUnit/FieldDistrict'
+import {FieldOptionSet} from '../../events/FieldOptionSet'
+import {FieldStatusOptionSet} from '../../events/FieldStatusOptionSet'
+import {FieldUserGroup} from '../../events/FieldUserGroup'
 import {
-    fetchEvent, 
+    eventToMessage,
     eventConfs, 
-    sendNotifications,
     saveEvent,
-} from './Events'
+} from '../../events'
+import {observer} from "mobx-react-lite"
 
-import i18n from '../locales'
+import i18n from '../../locales'
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const EventDialog = observer(({ message}) => {
-    const store = useStore()
+export const EventDialog = observer(({ message, event, userIsGlobal}) => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Alert Event")
     const [selectedGroups, setSelectedGroups] = useState([])
     
-    const showModal = async () => {
-        const cValues = await fetchEvent(message.id)
-        console.log("Fetched Values = ", cValues)
+    const showModal =  () => {
+        const cValues = eventToMessage(event)
         setCurrentEventValues(cValues)
         if ('district' in cValues){
             setModleTitle("Update Alert Event")
@@ -50,19 +46,6 @@ export const EventDialog = observer(({ message}) => {
 
     const handleOk = async (values) => {
         console.log("submited values", values)
-        if (typeof values.notifyusers != "undefined" & values.notifyusers.length){
-            const msgPayload = {
-              subject: "Alert from "+ message.originator + " on " + message.receiveddate,
-              text: message.text + " [from: " + message.originator + " on: " + message.receiveddate + "]",
-              userGroups: values.notifyusers.map(i => {
-                const y = {};
-                y["id"] = i;
-                return y;
-              })
-            }
-            console.log(msgPayload);
-            await sendNotifications(msgPayload)
-        }
 
         // Prepare to create or update event
         const completeDate = new Date().toISOString().slice(0, 10);
@@ -122,8 +105,8 @@ export const EventDialog = observer(({ message}) => {
                 <p style={{textAlign: "left"}}> Message: {message.text}</p>
                 <Form form={form} onFinish={handleOk}>
                     <Row>
-                        <Col span={12}>
-                            { store.IsGlobalUser &&
+                        <Col span={13}>
+                            { userIsGlobal &&
                             <FormItem
                                 {...formItemLayout} label="District" name="district"
                                 rules={[{required: true, message: "District is required"}]}
@@ -131,7 +114,7 @@ export const EventDialog = observer(({ message}) => {
                                 <FieldDistrict name="district" form={form}/>
                             </FormItem>
                             }
-                            { store.IsGlobalUser &&
+                            { userIsGlobal &&
                             <FormItem
                                 {...formItemLayout} label='Notify Users' name='notifyusers'
                                 initialValue={getInitialValue('notifyusers')} 
@@ -183,7 +166,7 @@ export const EventDialog = observer(({ message}) => {
                                 name='rumorSource' form={form}/>
                             </FormItem>
                         </Col>
-                        <Col span={12}>
+                        <Col span={11}>
                             <FormItem hidden={true} name="event" initialValue={message.id}>
                                 <Input/>
                             </FormItem>
@@ -226,7 +209,6 @@ export const EventDialog = observer(({ message}) => {
                                 <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
                                 name='followupAction' form={form}/>
                             </FormItem>
-                            
                             <FormItem   
                             {...formItemLayout} label="Followup Date" name="followupDate">
                                 <DatePicker style={{width: "60%"}} 
@@ -234,13 +216,6 @@ export const EventDialog = observer(({ message}) => {
                                     value={moment(getInitialValue('followupDate'), "YYYY-MM-DD")}
                                 />
                             </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Suspected Event" name="suspectedDisease"
-                                initialValue={getInitialValue('suspectedDisease')}>
-                                <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
-                                name='suspectedDisease' form={form}/>
-                            </FormItem>
-
                             <FormItem
                                 {...formItemLayout} 
                                 label="Comments"  
