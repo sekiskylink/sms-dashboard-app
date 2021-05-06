@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2021-05-05T07:20:23.061Z\n"
-"PO-Revision-Date: 2021-05-05T07:20:23.061Z\n"
+"POT-Creation-Date: 2021-05-06T18:00:28.403Z\n"
+"PO-Revision-Date: 2021-05-06T18:00:28.403Z\n"
 
 msgid "Are you sure you want to cancel? Unsaved changes will be lost"
 msgstr ""
@@ -42,9 +42,6 @@ msgid "of {{pageCount}}"
 msgstr ""
 
 msgid "Next"
-msgstr ""
-
-msgid "Log Event"
 msgstr ""
 
 msgid "Please Select"
@@ -104,6 +101,9 @@ msgid "Dashboard"
 msgstr ""
 
 msgid "View quick statistics and also make custom filters for visualisations"
+msgstr ""
+
+msgid "Organisation Unit"
 msgstr ""
 
 msgid " Select Period"

@@ -132,7 +132,7 @@ export const EventDialog = observer(({ message, event }) => {
             </Button>
 
             <Modal title={modalTitle} visible={isModalVisible}
-                onOk={form.submit} onCancel={handleCancel} okText="Save"
+                onOk={form.submit} onCancel={handleCancel} okText="Update"
                 confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
                 <p style={{ textAlign: "left" }}> Message: {message.text}</p>
@@ -158,14 +158,14 @@ export const EventDialog = observer(({ message, event }) => {
                                     <FieldDistrict name="district" form={form} />
                                 </FormItem>
                             }
-                            {store.IsGlobalUser &&
+                            {/* {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'
                                     initialValue={getInitialValue('notifyusers')}
                                 >
                                     <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
                                 </FormItem>
-                            }
+                            } */}
                             <FormItem
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
                                 <DatePicker style={{ width: "60%" }}

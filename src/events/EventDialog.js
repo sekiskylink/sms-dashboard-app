@@ -21,12 +21,12 @@ import i18n from '../locales'
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const EventDialog = observer(({ message }) => {
+export const EventDialog = observer(({ message, forUpdate }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Alert Event")
-    const [selectedGroups, setSelectedGroups] = useState([])
+    // const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = async () => {
         const cValues = await fetchEvent(message.id)
@@ -34,6 +34,17 @@ export const EventDialog = observer(({ message }) => {
         setCurrentEventValues(cValues)
         if ('district' in cValues) {
             setModleTitle("Update Alert Event")
+        }
+        switch (cValues['eventType']) {
+            case 'Human':
+                store.setCaseTypeHumanSelected(true)
+                break
+            case 'Animal':
+                store.setCaseTypeAnimalSelected(true)
+                break
+            default:
+                store.setCaseTypeHumanSelected(false)
+                store.setCaseTypeAnimalSelected(false)
         }
         setIsModalVisible(true)
     }
@@ -90,7 +101,6 @@ export const EventDialog = observer(({ message }) => {
                     }
                 }
 
-
             }
         }
         const eventPayload = {
@@ -130,14 +140,16 @@ export const EventDialog = observer(({ message }) => {
             sm: { span: 14 },
         },
     };
+    const buttonName = forUpdate === 1 ? 'Update Event' : 'Log Event'
+    const okTextName = forUpdate === 1 ? 'Update' : 'Save'
     return (
         <>
             <Button type="default" onClick={showModal}>
-                {i18n.t('Log Event')}
+                {i18n.t(buttonName)}
             </Button>
 
             <Modal title={modalTitle} visible={isModalVisible}
-                onOk={form.submit} onCancel={handleCancel} okText="Save"
+                onOk={form.submit} onCancel={handleCancel} okText={i18n.t(okTextName)}
                 confirmLoading={false} width="79%">
                 <Space direction="vertical"></Space>
                 <p style={{ textAlign: "left" }}> Message: {message.text}</p>
@@ -159,14 +171,14 @@ export const EventDialog = observer(({ message }) => {
                                     <FieldDistrict name="district" form={form} />
                                 </FormItem>
                             }
-                            {store.IsGlobalUser &&
+                            {/* {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'
                                     initialValue={getInitialValue('notifyusers')}
                                 >
                                     <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
                                 </FormItem>
-                            }
+                            } */}
                             <FormItem
                                 {...formItemLayout} label="Date Alert Received"
                                 name="alertDate" initialValue={alertDate._i.slice(0, 10)}
