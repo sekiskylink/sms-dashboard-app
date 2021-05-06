@@ -10,10 +10,10 @@ export const PieChart = observer(({ title, dataDimension }) => {
 
     useEffect(() => {
         store.fetchChartData(dataDimension).then((data) => setData(data))
-    }, [store.filteringPeriod])
+    }, [store.filteringPeriod, store.filteringOrgUnit])
 
     var layout = {
-        width: 605,
+        width: 520,
         height: 400,
         title: title ? title : ''
     }

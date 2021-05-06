@@ -12,6 +12,7 @@ class Store {
     districts = []
     userGroups = []
     filteringPeriod = "LAST_MONTH"
+    filteringOrgUnit = ''
     caseTypeHumanSelected = false
     caseTypeAnimalSelected = false
     /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 
@@ -37,6 +38,7 @@ class Store {
     setCaseTypeHumanSelected = (val) => (this.caseTypeHumanSelected = val)
     setCaseTypeAnimalSelected = (val) => (this.caseTypeAnimalSelected = val)
     setFilteringPeriod = (val) => (this.filteringPeriod = val)
+    setFilteringOrgUnit = (val) => (this.filteringOrgUnit = val)
 
     fetchDefaults = async () => {
         this.setLoading(true)
@@ -54,6 +56,7 @@ class Store {
 
         if (orgUnits.toArray().length > 0) {
             this.setDefaultOrgUnit(orgUnits.toArray()[0].id)
+            this.setFilteringOrgUnit(orgUnits.toArray()[0].id) /*just set this as filtering orgUnit*/
         }
 
         /*set districts */
@@ -148,7 +151,7 @@ class Store {
     }
     fetchChartData = async (dataDimension) => {
         const api = this.d2.Api.getApi();
-        const data = await api.get(`analytics/events/aggregate/iaN1DovM5em?filter=pe:${this.filteringPeriod}&filter=ou:USER_ORGUNIT&dimension=${dataDimension}`)
+        const data = await api.get(`analytics/events/aggregate/iaN1DovM5em?filter=pe:${this.filteringPeriod}&filter=ou:${this.filteringOrgUnit}&dimension=${dataDimension}`)
         return data;
     }
 
@@ -159,45 +162,45 @@ class Store {
         const dateToday = moment().format('YYYY-MM-DD')
         switch (this.filteringPeriod) {
             case "TODAY":
-                filterString = `filter=lastUpdated:ge:${dateToday}`
+                filterString = `filter=receiveddate:ge:${dateToday}`
                 break
             case "YESTERDAY":
                 const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${yesterday}&filter=lastUpdated:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${yesterday}&filter=receiveddate:le:${dateToday}`
                 break
             case "LAST_WEEK":
                 const lastWeekStart = moment().subtract(7, 'days').startOf('week').format('YYYY-MM-DD')
                 const lastWeekEnd = moment().subtract(7, 'days').endOf('week').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${lastWeekStart}&filter=lastUpdated:le:${lastWeekEnd}`
+                filterString = `filter=receiveddate:ge:${lastWeekStart}&filter=receiveddate:le:${lastWeekEnd}`
                 break
             case "THIS_WEEK":
                 const weekStart = moment().startOf('week').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${weekStart}&filter=lastUpdated:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${weekStart}&filter=receiveddate:le:${dateToday}`
                 break
             case "LAST_MONTH":
                 const lastMonthStart = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
                 const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${lastMonthStart}&filter=lastUpdated:le:${lastMonthEnd}`
+                filterString = `filter=receiveddate:ge:${lastMonthStart}&filter=receiveddate:le:${lastMonthEnd}`
                 break
             case "THIS_MONTH":
                 const thisMonthStart = moment().subtract(0, 'month').startOf('month').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${thisMonthStart}&filter=lastUpdated:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${thisMonthStart}&filter=receiveddate:le:${dateToday}`
                 break
             case "LAST_3_MONTHS":
                 const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${last3MonthStart}`
+                filterString = `filter=receiveddate:ge:${last3MonthStart}`
                 break
             case "LAST_YEAR":
                 const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
                 const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${lastYearStart}&filter=lastUpdate:le:${lastYearEnd}`
+                filterString = `filter=receiveddate:ge:${lastYearStart}&filter=lastUpdate:le:${lastYearEnd}`
                 break
-            case "THIS YEAR":
+            case "THIS_YEAR":
                 const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
-                filterString = `filter=lastUpdated:ge:${thisYearStart}&filter=lastUpdated:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${thisYearStart}&filter=receiveddate:le:${dateToday}`
                 break
             default:
-                filterString = `filter=lastUpdated:ge:${dateToday}`
+                filterString = `filter=receiveddate:ge:${dateToday}`
 
         }
         const data = await api.get(`sms/inbound?${filterString}&pageSize=1`)
@@ -244,7 +247,7 @@ class Store {
                 const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
                 filterString = `startDate=${lastYearStart}&endDate=${lastYearEnd}`
                 break
-            case "THIS YEAR":
+            case "THIS_YEAR":
                 const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
                 filterString = `startDate=${thisYearStart}&endDate=${dateToday}`
                 break
@@ -252,7 +255,7 @@ class Store {
                 filterString = `startDate=${dateToday}`
 
         }
-        const data = await api.get(`events?program=iaN1DovM5em&orgUnit=${this.defaultOrgUnit}&${filterString}&totalPages=true&fields=event&pageSize=1&ouMode=DESCENDANTS`)
+        const data = await api.get(`events?program=iaN1DovM5em&orgUnit=${this.filteringOrgUnit}&${filterString}&totalPages=true&fields=event&pageSize=1&ouMode=DESCENDANTS`)
         return data
     }
 

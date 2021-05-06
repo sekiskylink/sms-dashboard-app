@@ -10,7 +10,7 @@ export const AlertsChart = observer(({ title }) => {
 
     useEffect(() => {
         store.fetchTotalAlerts().then((data) => setData(data))
-    }, [store.filteringPeriod])
+    }, [store.filteringPeriod, store.filteringOrgUnit])
 
     var layout = {
         width: 250,

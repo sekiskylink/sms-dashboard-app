@@ -3,7 +3,7 @@ import React from 'react'
 import i18n from '@dhis2/d2-i18n'
 import { TableCell, Button } from '@dhis2/ui'
 import { Date, Time } from '../../time'
-import { EventDialog, EventExists } from '../../events'
+import { EventDialog, EventExists, EventModalButton } from '../../events'
 import { statusMap } from './translations'
 import { SmsTable } from '../../sms_table/SmsTable'
 import styles from './ReceivedSmsTable.module.css'
@@ -53,7 +53,8 @@ export const ReceivedSmsTable = ({
                 </TableCell>
                 {/* DialogForm for Updates goes here*/}
                 <TableCell>
-                    <EventDialog message={message} />
+                    {/* <EventDialog message={message} /> */}
+                    <EventModalButton message={message} />
                 </TableCell>
             </>
         )}

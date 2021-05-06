@@ -12,6 +12,7 @@ import { BarGraph } from '../../visualizations'
 import { MessagesChart } from '../../visualizations'
 import { AlertsChart } from '../../visualizations'
 import { FieldPeriods } from './FieldPeriods'
+import { OrgUnitFilter } from './OrgUnitFilter'
 
 export const HOME_PATH = '/'
 export const HOME_LABEL = 'Dashboard'
@@ -35,6 +36,11 @@ export const Home = observer(() => {
                 <Col span={6}>
                     Period Filter: <FieldPeriods />
                 </Col>
+                {store.IsGlobalUser &&
+                    <Col span={6}>
+                        Organisation Unit Filter:<OrgUnitFilter />
+                    </Col>
+                }
             </Row>
 
             <Row>
