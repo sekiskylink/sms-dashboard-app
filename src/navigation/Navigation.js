@@ -34,11 +34,12 @@ export const Navigation = observer(() => {
                 path={RECEIVED_ALERTS_PATH}
                 label={forwarded + RECEIVED_ALERTS_LABEL}
             />
-
+            {/*
             <NavigationItem
                 path={VISUALIZATIONS_PATH}
                 label={VISUALIZATIONS_LABEL}
             />
+            */}
         </Menu>
     )
 })

@@ -10,7 +10,6 @@ import {
     SingleSelectOption,
 } from '@dhis2/ui'
 import { useQueryParams } from './useQueryParams'
-import { useReadOrgUnitsQuery } from '../../orgUnit'
 import { createSearchString } from '../../utils'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../context/context'
@@ -18,7 +17,11 @@ import styles from './Filter.module.css'
 
 const DistrictFieldSelect = observer(() => {
     const store = useStore()
+    const history = useHistory()
+    const { pageSize, orgUnit } = useQueryParams(store.defaultOrgUnit)
+
     const handleOrgUnitChange = ({ selected }) => {
+        console.log("Selected District is", selected)
         history.push({
             search: createSearchString({
                 orgUnit: selected,
@@ -27,29 +30,24 @@ const DistrictFieldSelect = observer(() => {
             }),
         })
     }
-    
-    console.log("VVVVVVVVVV", store.defaultOrgUnit)
+
+    const districtsOptions = store.districts.map((d) => (
+        <SingleSelectOption key={d.id} label={d.displayName} value={d.id}>{d.displayName}</SingleSelectOption>))
+    // console.log("VVVVVVVVVV", districtsOptions)
     return (
         <SingleSelectField
             label={i18n.t('Filter by District')}
             inputWidth="200px"
             onChange={handleOrgUnitChange}
-            //selected={}
+            // selected='NREoMszwQZW'
             dataTest="orgunit-filter"
+            placeholder={"Select District"}
         >
-            {
-                store.districts.map((org) => {
-                    <SingleSelectOption
-                        key={org.id}
-                        label={org.displayName}
-                        value={org.id}
-                    /> 
-                })
-            }
-                    
+            {districtsOptions}
+
         </SingleSelectField>
     )
-    
+
 })
 
 const Filter = observer(() => {
@@ -65,14 +63,14 @@ const Filter = observer(() => {
             }),
         })
     }
-   
+
     return (
         <div
             data-test={dataTest('views-events-filter')}
             className={styles.container}
         >
             <div className={styles.inputStrip}>
-                <DistrictFieldSelect/>
+                <DistrictFieldSelect />
                 <Button large onClick={handleReset} dataTest="reset-filter-btn">
                     {i18n.t('Reset filter')}
                 </Button>

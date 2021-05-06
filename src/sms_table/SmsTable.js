@@ -1,5 +1,5 @@
 import { PropTypes } from '@dhis2/prop-types'
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import i18n from '@dhis2/d2-i18n'
 import {
     Checkbox,
@@ -13,7 +13,7 @@ import {
     TableRowHead,
 } from '@dhis2/ui'
 import { Pagination } from '../pagination/Pagination'
-import {useStore} from '../context/context'
+import { useStore } from '../context/context'
 import { observer } from 'mobx-react-lite'
 import styles from './SmsTable.module.css'
 
@@ -52,13 +52,13 @@ export const SmsTable = observer(({
         <Table>
             <TableHead>
                 <TableRowHead>
-                    <TableCellHead>
+                    {/* <TableCellHead>
                         <Checkbox
                             disabled={messages.length === 0}
                             onChange={toggleAll}
                             checked={allSelected}
                         />
-                    </TableCellHead>
+                    </TableCellHead> */}
                     {columns.map(column => (
                         <TableCellHead key={column}>{column}</TableCellHead>
                     ))}
@@ -74,21 +74,21 @@ export const SmsTable = observer(({
                             {i18n.t('No SMSes to display')}
                         </TableCell>
                     </TableRow>
-                ) :  (
+                ) : (
                     messages.map(message => {
-                        if (store.IsGlobalUser ) {
-                        return (<TableRow key={message.id}>
-                            <TableCell>
-                                <Checkbox
-                                    checked={selectedIdSet.has(message.id)}
-                                    onChange={() => toggle(message.id)}
-                                />
-                            </TableCell>
-                            {rowRenderFn(message)}
-                        </TableRow>)
-                        } 
-                    }) 
-                    )
+                        if (store.IsGlobalUser) {
+                            return (<TableRow key={message.id}>
+                                {/* <TableCell>
+                                    <Checkbox
+                                        checked={selectedIdSet.has(message.id)}
+                                        onChange={() => toggle(message.id)}
+                                    />
+                                </TableCell> */}
+                                {rowRenderFn(message)}
+                            </TableRow>)
+                        }
+                    })
+                )
                 }
             </TableBody>
             <TableFoot>

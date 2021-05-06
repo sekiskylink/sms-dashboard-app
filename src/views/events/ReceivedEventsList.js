@@ -7,18 +7,19 @@ import { dataTest } from '../../dataTest'
 import i18n from '../../locales'
 import { Filter } from './Filter'
 import { ReceivedEventsTable } from './ReceivedEventsTable'
-import {observer} from 'mobx-react-lite'
+import { observer } from 'mobx-react-lite'
 import { useStore } from '../../context/context'
 import {
     eventConfs,
 } from '../../events'
 
 import styles from './ReceivedEventsList.module.css'
+import { NewEventDialog } from './NewEventDialog'
 
 export const RECEIVED_ALERTS_LABEL = i18n.t('Alerts')
 export const RECEIVED_ALERTS_PATH = '/alerts'
 
-const parseParams = ({ page, pageSize, orgUnit}) => {
+const parseParams = ({ page, pageSize, orgUnit }) => {
     const params = {
         page,
         pageSize,
@@ -53,9 +54,9 @@ const query = {
 
 export const ReceivedEventsList = observer(() => {
     const store = useStore()
-    const { page, pageSize, orgUnit} = useQueryParams(store.defaultOrgUnit)
+    const { page, pageSize, orgUnit } = useQueryParams(store.defaultOrgUnit)
     const { called, loading, error, data, refetch } = useDataQuery(query, {
-            lazy: true,
+        lazy: true,
     })
 
     const refetchAndClear = () => {
@@ -63,10 +64,10 @@ export const ReceivedEventsList = observer(() => {
     }
 
     useEffect(() => {
-        refetch({ page, pageSize, orgUnit})
-    }, [page, pageSize, orgUnit])
+        refetch({ page, pageSize, orgUnit })
+    }, [page, pageSize, store.defaultOrgUnit])
 
-   
+
 
     if (error) {
         const msg = i18n.t('Something went wrong whilst loading received Alerts')
@@ -90,14 +91,16 @@ export const ReceivedEventsList = observer(() => {
             className={styles.container}
         >
             <PageHeadline>{RECEIVED_ALERTS_LABEL}</PageHeadline>
-            
+
             <header className={styles.header}>
-                { store.IsGlobalUser &&
+
+                {store.IsGlobalUser &&
                     <Filter />
                 }
-                
+                <NewEventDialog />
+
             </header>
-        
+
             {loading || !called ? (
                 <CenteredContent>
                     <CircularLoader />

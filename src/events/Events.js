@@ -2,6 +2,7 @@ import { getInstance } from 'd2'
 
 export const eventConfs = {
     program: "iaN1DovM5em",
+    nationalOrgUnit: "akV6429SUqu",
     eventType: "ILmx9NZX5GK",
     dateOfOnset: "KyQqGXUzThE",
     location: "MaR0lvrRkvR",
@@ -15,18 +16,21 @@ export const eventConfs = {
     status_update_date: "Pwr85z28pXn",
     comment: "MYIDtPnvepJ",
     suspectedDisease: "elGqdsbgahz",
+    hasSigns: "qZbnrWP7sAc",
+    age: "p8lmShXZbu0",
+    gender: "t0fsTEkUl2d",
 }
 
 /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 'EOC Core Staff', 'System Admin', 'National IDSR Team'*/
-export const allowedUserGroups = ['PiU1BMFQrhR', 'w4QeiRn7fzy', 'tljMIEjx4gD', 'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK'] 
+export const allowedUserGroups = ['PiU1BMFQrhR', 'w4QeiRn7fzy', 'tljMIEjx4gD', 'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK']
 
 export const fetchEvent = async (eventID) => {
     const d2 = await getInstance()
     const api = d2.Api.getApi()
     const url = "events/" + eventID
     try {
-        const {orgUnit, dataValues} = await api.get(
-            url, {fields: "orgUnit,dataValues[dataElement,value]"})
+        const { orgUnit, dataValues } = await api.get(
+            url, { fields: "orgUnit,dataValues[dataElement,value]" })
         var cValues = {}
         const eValues = dataValues.map(i => {
             var y = {}
@@ -48,7 +52,7 @@ export const fetchEvent = async (eventID) => {
 }
 
 export const eventToMessage = (e) => {
-    const {orgUnit, dataValues, created, event} = e
+    const { orgUnit, dataValues, created, event } = e
     var cValues = {}
     const eValues = dataValues.map(i => {
         var y = {}
@@ -92,7 +96,7 @@ export const getUserEventIDs = async () => {
     const currentUser = d2.currentUser
     const orgUnitsModelCollection = await currentUser.getOrganisationUnits()
     const myOrgUnits = orgUnitsModelCollection.toArray().map(org => org.id)
-    if (myOrgUnits.length > 0){
+    if (myOrgUnits.length > 0) {
         console.log("Current User orgUnits:=======>", myOrgUnits)
         const defaulOrgUnit = myOrgUnits[0]
         console.log("Current User DEFAULT orgUnit:=======>", defaulOrgUnit)

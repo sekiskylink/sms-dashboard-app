@@ -20,8 +20,7 @@ export const EventTable = ({
     events,
     pager,
     columns,
-    rowRenderFn,
-    userIsGlobal,
+    rowRenderFn
 }) => {
 
     return (
@@ -47,7 +46,7 @@ export const EventTable = ({
                     events.map(event => {
                         return (
                             <TableRow key={event.event}>
-                                {rowRenderFn(eventToMessage(event), event, userIsGlobal)}
+                                {rowRenderFn(eventToMessage(event), event)}
                             </TableRow>
                         )
                     }) 

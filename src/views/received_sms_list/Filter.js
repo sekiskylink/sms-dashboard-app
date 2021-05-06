@@ -47,11 +47,11 @@ const PhoneInputField = ({ phoneNumber, onChange }) => {
 
     return (
         <InputField
-            label={i18n.t('Filter by phone number')}
+            label={i18n.t('Search')}
             inputWidth="250px"
             onChange={handleChange}
             value={value}
-            dataTest="phone-number-filter"
+            dataTest="phone-number-text-filter"
             loading={waiting}
         />
     )

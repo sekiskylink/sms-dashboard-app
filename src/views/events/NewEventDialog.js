@@ -1,40 +1,33 @@
-// import { PropTypes } from '@dhis2/prop-types'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import moment from 'moment';
 import { Modal, Form, Button, Input, DatePicker, Space, Row, Col } from 'antd'
-import { FieldDistrict } from '../orgUnit/FieldDistrict'
-import { FieldOptionSet } from './FieldOptionSet'
-import { FieldStatusOptionSet } from './FieldStatusOptionSet'
-import { FieldCaseTypeOptionSet } from './FieldCaseTypeOptionSet'
-import { FieldUserGroup } from './FieldUserGroup'
-import { useStore } from '../context/context'
-import { observer } from 'mobx-react-lite'
+import { FieldDistrict } from '../../orgUnit/FieldDistrict'
+import { FieldOptionSet } from '../../events/FieldOptionSet'
+import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
+import { FieldUserGroup } from '../../events/FieldUserGroup'
+import { FieldCaseTypeOptionSet } from '../../events/FieldCaseTypeOptionSet'
 import {
-    fetchEvent,
+    eventToMessage,
     eventConfs,
-    sendNotifications,
     saveEvent,
-} from './Events'
+} from '../../events'
+import { observer } from "mobx-react-lite"
+import { useStore } from '../../context/context'
 
-import i18n from '../locales'
+import i18n from '../../locales'
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const EventDialog = observer(({ message }) => {
+export const NewEventDialog = observer(() => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Alert Event")
     const [selectedGroups, setSelectedGroups] = useState([])
 
-    const showModal = async () => {
-        const cValues = await fetchEvent(message.id)
-        console.log("Fetched Values = ", cValues)
-        setCurrentEventValues(cValues)
-        if ('district' in cValues) {
-            setModleTitle("Update Alert Event")
-        }
+    const showModal = () => {
+
         setIsModalVisible(true)
     }
 
@@ -42,28 +35,8 @@ export const EventDialog = observer(({ message }) => {
         setIsModalVisible(false);
     }
 
-    const getInitialValue = (field) => {
-        if (field in currentEventValues) {
-            return currentEventValues[field]
-        }
-        return "";
-    }
-
     const handleOk = async (values) => {
         console.log("submited values", values)
-        if (typeof values.notifyusers != "undefined" & values.notifyusers.length) {
-            const msgPayload = {
-                subject: "Alert from " + message.originator + " on " + message.receiveddate,
-                text: message.text + " [from: " + message.originator + " on: " + message.receiveddate + "]",
-                userGroups: values.notifyusers.map(i => {
-                    const y = {};
-                    y["id"] = i;
-                    return y;
-                })
-            }
-            console.log(msgPayload);
-            await sendNotifications(msgPayload)
-        }
 
         // Prepare to create or update event
         const completeDate = new Date().toISOString().slice(0, 10);
@@ -89,8 +62,6 @@ export const EventDialog = observer(({ message }) => {
                         assignToNationalLevel = true
                     }
                 }
-
-
             }
         }
         const eventPayload = {
@@ -99,11 +70,12 @@ export const EventDialog = observer(({ message }) => {
             orgUnit: values["district"],
             // eventDate: values["alertDate"]["_d"].toISOString().slice(0, 10),
             eventDate: values["alertDate"],
-            //status: "COMPLETED",
+            // status: "COMPLETED",
             // completeDate: completeDate,
             // storedBy: '',
             dataValues: dataValues
         }
+
         if (toCompleteEvent) {
             eventPayload['status'] = "COMPLETED"
             eventPayload['CompleteDate'] = completeDate
@@ -117,7 +89,7 @@ export const EventDialog = observer(({ message }) => {
     }
     const [form] = Form.useForm();
 
-    const alertDate = moment(message.receiveddate, moment.HTML5_FMT.DATE);
+    const alertDate = moment(moment(), moment.HTML5_FMT.DATE);
     // console.log("Alert Date=>", alertDate, "Received Date", message.receiveddate)
 
     const formItemLayout = {
@@ -133,58 +105,58 @@ export const EventDialog = observer(({ message }) => {
     return (
         <>
             <Button type="default" onClick={showModal}>
-                {i18n.t('Log Event')}
+                {i18n.t('New Event')}
             </Button>
 
             <Modal title={modalTitle} visible={isModalVisible}
                 onOk={form.submit} onCancel={handleCancel} okText="Save"
-                confirmLoading={false} width="79%">
+                confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
-                <p style={{ textAlign: "left" }}> Message: {message.text}</p>
                 <Form form={form} onFinish={handleOk}>
                     <Row>
                         <Col span={13}>
                             <FormItem
                                 {...formItemLayout} label="SMS Status" name="status"
-                                initialValue={getInitialValue('status')}>
+                            >
                                 <FieldStatusOptionSet id="UrGEIjjyY0A" placeholder="Status"
                                     name='status' form={form} />
                             </FormItem>
+                            <FormItem name="status_update_date" hidden={true}
 
+                            >
+                                <Input />
+                            </FormItem>
                             {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label="District" name="district"
                                     rules={[{ required: true, message: "District is required" }]}
-                                    initialValue={getInitialValue('district')}>
+                                >
                                     <FieldDistrict name="district" form={form} />
                                 </FormItem>
                             }
                             {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'
-                                    initialValue={getInitialValue('notifyusers')}
+
                                 >
                                     <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
                                 </FormItem>
                             }
                             <FormItem
+                                {...formItemLayout} label="Date of SMS Followup" name="followupDate">
+                                <DatePicker style={{ width: "60%" }}
+
+                                />
+                            </FormItem>
+                            <FormItem
                                 {...formItemLayout} label="Date Alert Received"
-                                name="alertDate" initialValue={alertDate._i.slice(0, 10)}
+                                name="alertDate"
                                 hidden={true}>
                                 <Input />
                             </FormItem>
 
-                            <FormItem
-                                {...formItemLayout} label="Date of SMS Followup" name="followupDate">
-                                <DatePicker style={{ width: "60%" }}
-                                    placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('followupDate'), "YYYY-MM-DD")}
-                                />
-                            </FormItem>
-
                             <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
-                                // rules={[{required: true, message: "Case Type is required"}]}
-                                initialValue={getInitialValue('eventType')}
+
                             >
                                 <FieldCaseTypeOptionSet id="stZ0w17GD28" placeholder="Case/Event Type"
                                     form={form} name="eventType" />
@@ -196,69 +168,57 @@ export const EventDialog = observer(({ message }) => {
                             >
 
                                 <DatePicker style={{ width: "60%" }}
-                                    placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD")}
+
                                 />
                             </FormItem>
-                            {/* Age and Gender go here */}
+                            {/* Age and Gender Go Here */}
                             <FormItem
                                 {...formItemLayout} hidden={false} label="Age" name="age"
-                                initialValue={getInitialValue('age')}
+
                                 style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
                                 <Input placeholder="" />
                             </FormItem>
                             <FormItem
                                 {...formItemLayout} label="Gender" name="gender"
-                                initialValue={getInitialValue('gender')}
+
                                 style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
                                 <FieldOptionSet id="WNqjeSlrS3r" placeholder="Gender"
                                     name='gender' form={form} />
                             </FormItem>
+                            <FormItem
+                                {...formItemLayout} label="Location" name="location"
+                            >
+                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
+                            </FormItem>
+
+
+                            {/* Patient has Signs goes here */}
 
 
                         </Col>
                         <Col span={11}>
-                            <FormItem hidden={true} name="event" initialValue={message.id}>
+                            <FormItem hidden={true} name="event">
                                 <Input />
                             </FormItem>
 
-                            <FormItem hidden={true} name="text" initialValue={message.text}>
+                            <FormItem hidden={true} name="text">
                                 <Input />
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Location" name="location"
-                                initialValue={getInitialValue('location')}>
-                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
                             </FormItem>
                             <FormItem
                                 {...formItemLayout} label="Name of Submitter" name="nameOfSubmitter"
-                                initialValue={getInitialValue('nameOfSubmitter')}>
+                            >
                                 <Input placeholder="Name of Submitter" />
                             </FormItem>
 
                             <FormItem
                                 {...formItemLayout} label="Source of Rumor" name="rumorSource"
-                                initialValue={getInitialValue('rumorSource')}>
+                            >
                                 <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
                                     name='rumorSource' form={form} />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout}
-                                label="Phone Number of Submitter" hidden={true}
-                                name="phone" initialValue={message.originator}>
-                                <Input placeholder="Phone Number of the Submitter" />
-                            </FormItem>
-
-                            <FormItem name="status_update_date" hidden={true}
-                                initialValue={getInitialValue('status_date_update')}
-                            >
-                                <Input />
-                            </FormItem>
-
-                            <FormItem
                                 {...formItemLayout} label="Patient has Signs" name="hasSigns"
-                                initialValue={getInitialValue('hasSigns')}
+
                                 style={
                                     (store.caseTypeAnimalSelected || store.caseTypeHumanSelected) ?
                                         { hidden: false } : { display: 'none' }}>
@@ -266,33 +226,38 @@ export const EventDialog = observer(({ message }) => {
                                     name='hasSigns' form={form} />
                             </FormItem>
                             <FormItem
+                                {...formItemLayout}
+                                label="Phone Number of Submitter" hidden={true}
+                                name="phone">
+                                <Input placeholder="Phone Number of the Submitter" />
+                            </FormItem>
+
+                            <FormItem
                                 {...formItemLayout} label="Action Taken" name="actionTaken"
-                                initialValue={getInitialValue('actionTaken')}>
+                            >
                                 <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
                                     name='actionTaken' form={form} />
                             </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Followup Action" name="followupAction"
-                                initialValue={getInitialValue('followupAction')}>
-                                <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
-                                    name='followupAction' form={form} />
-                            </FormItem>
-
                             <FormItem
                                 {...formItemLayout} label="Suspected Disease" name="suspectedDisease"
-                                initialValue={getInitialValue('suspectedDisease')}
+
                                 style={
                                     (store.caseTypeHumanSelected || store.caseTypeAnimalSelected) ? { hidden: false } : { display: 'none' }}>
                                 <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
                                     name='suspectedDisease' form={form} />
                             </FormItem>
+                            <FormItem
+                                {...formItemLayout} label="Followup Action" name="followupAction"
+                            >
+                                <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
+                                    name='followupAction' form={form} />
+                            </FormItem>
 
                             <FormItem
                                 {...formItemLayout}
                                 label="Comments"
-                                name="comment" initialValue={getInitialValue('comment')}>
-                                <TextArea rows={2} />
+                                name="comment">
+                                <TextArea rows={3} />
                             </FormItem>
                         </Col>
                     </Row>

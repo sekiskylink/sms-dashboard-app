@@ -10,8 +10,7 @@ import styles from './ReceivedEventsTable.module.css'
 
 export const ReceivedEventsTable = ({
     events,
-    pager,
-    userIsGlobal,
+    pager
 }) => (
     <EventTable
         events={events}
@@ -20,10 +19,10 @@ export const ReceivedEventsTable = ({
             i18n.t('Message'),
             i18n.t('Phone number'),
             i18n.t('Received'),
+            i18n.t('Staus'),
             i18n.t('Action')
         ]}
-        userIsGlobal={userIsGlobal}
-        rowRenderFn={(message, event, userIsGlobal) => (
+        rowRenderFn={(message, event) => (
             <>
                 <TableCell>
                     {message.text}
@@ -39,9 +38,13 @@ export const ReceivedEventsTable = ({
                     <br />
                     <Time time={message.receiveddate} />
                 </TableCell>
+                {/* XXX fix event status */}
+                <TableCell>
+                    {message.status}
+                </TableCell>
                 {/* DialogForm for Updates goes here*/}
                 <TableCell>
-                    <EventDialog message={message} event={event} userIsGlobal={userIsGlobal}/>
+                    <EventDialog message={message} event={event}/>
                 </TableCell>
             </>
         )}

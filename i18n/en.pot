@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2021-04-27T11:39:59.610Z\n"
-"PO-Revision-Date: 2021-04-27T11:39:59.610Z\n"
+"POT-Creation-Date: 2021-05-05T07:20:23.061Z\n"
+"PO-Revision-Date: 2021-05-05T07:20:23.061Z\n"
 
 msgid "Are you sure you want to cancel? Unsaved changes will be lost"
 msgstr ""
@@ -64,10 +64,16 @@ msgstr ""
 msgid "User group"
 msgstr ""
 
+msgid "Update Event"
+msgstr ""
+
 msgid "Filter by District"
 msgstr ""
 
 msgid "Reset filter"
+msgstr ""
+
+msgid "New Event"
 msgstr ""
 
 msgid "Alerts"
@@ -85,43 +91,25 @@ msgstr ""
 msgid "Received"
 msgstr ""
 
+msgid "Staus"
+msgstr ""
+
 msgid "Action"
 msgstr ""
 
-msgid "Overview: SMS Dashboard"
+msgid "Select Period"
 msgstr ""
 
-msgid "View all received surveillence signals and action on them"
+msgid "Dashboard"
 msgstr ""
 
-msgid "Received SMS messages"
+msgid "View quick statistics and also make custom filters for visualisations"
 msgstr ""
 
-msgid "Open logs of all SMS alerts received by DHIS2."
+msgid " Select Period"
 msgstr ""
 
-msgid "View all received SMS alerts"
-msgstr ""
-
-msgid "Forwarded Alerts"
-msgstr ""
-
-msgid "Open all the alerts forwarded to my Organisation Unit"
-msgstr ""
-
-msgid "View all my alerts"
-msgstr ""
-
-msgid "My Visualizations"
-msgstr ""
-
-msgid "view and filter my visualizations"
-msgstr ""
-
-msgid "View my Visualizations"
-msgstr ""
-
-msgid "Filter by phone number"
+msgid "Search"
 msgstr ""
 
 msgid "Filter by status"

@@ -1,97 +1,105 @@
 import { configure, makeAutoObservable } from "mobx";
 import { getInstance } from 'd2'
+import moment from "moment";
 
-configure({ enforceActions: "observed"});
+configure({ enforceActions: "observed" });
 
 class Store {
-    d2
+    d2 = null
     IsGlobalUser = false;
     loading = false;
     defaultOrgUnit = ''
     districts = []
     userGroups = []
+    filteringPeriod = "LAST_MONTH"
+    caseTypeHumanSelected = false
+    caseTypeAnimalSelected = false
     /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 
      * 'EOC Core Staff', 'System Admin', 'National IDSR Team'
      * */
     allowedUserGroups = [
-        'PiU1BMFQrhR', 'w4QeiRn7fzy', 'tljMIEjx4gD', 
+        'PiU1BMFQrhR', 'w4QeiRn7fzy', 'tljMIEjx4gD',
         'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK'
     ];
 
-    constructor(d2){
+    constructor(d2) {
+        makeAutoObservable(this, {
+            d2: false,
+        })
         this.d2 = d2
-        // console.log(d2)
-        makeAutoObservable(this)
     }
 
-    setLoading = (val) => this.loading = val;
-    setUserGroups = val => this.userGroups = val
+    setLoading = (val) => (this.loading = val)
+    setUserGroups = val => (this.userGroups = val)
     setUserGlobalStatus = (val) => (this.IsGlobalUser = val)
     setDefaultOrgUnit = (val) => (this.defaultOrgUnit = val)
     setDistricts = (val) => (this.districts = val)
+    setCaseTypeHumanSelected = (val) => (this.caseTypeHumanSelected = val)
+    setCaseTypeAnimalSelected = (val) => (this.caseTypeAnimalSelected = val)
+    setFilteringPeriod = (val) => (this.filteringPeriod = val)
 
     fetchDefaults = async () => {
         this.setLoading(true)
         const [orgUnits, userGroups, orgs] = await Promise.all(
-            [this.d2.currentUser.getOrganisationUnits({fields:'id,name'}), 
-            this.d2.currentUser.getUserGroups({fields:'id,name'})
-        ])
+            [this.d2.currentUser.getOrganisationUnits({ fields: 'id,name' }),
+            this.d2.currentUser.getUserGroups({ fields: 'id,name' })
+            ])
         console.log("===", orgUnits.toArray(), "---", userGroups.toArray())
-        this.setUserGroups (userGroups.toArray()); 
+        this.setUserGroups(userGroups.toArray());
 
         const groupIDs = userGroups.toArray().map(g => g.id)
         /* compare with the global allowedUserGroups - if any usergroup exists in global*/
         const isGlobal = groupIDs.some((val) => this.allowedUserGroups.indexOf(val) !== -1)
         this.setUserGlobalStatus(isGlobal)
 
-        if (orgUnits.toArray().length > 0){
+        if (orgUnits.toArray().length > 0) {
             this.setDefaultOrgUnit(orgUnits.toArray()[0].id)
         }
 
         /*set districts */
-        getInstance().then(d2=>{
+        getInstance().then(d2 => {
             const api = d2.Api.getApi()
             const p = api.get("organisationUnits", {
                 level: "3",
                 fields: "id,displayName",
                 paging: false
-            }) 
+            })
             Promise.all([p]).then(
-                (values)=>{
+                (values) => {
                     // console.log(">>>>>>", values[0])
-                    const {organisationUnits} = values[0]
+                    const { organisationUnits } = values[0]
                     this.setDistricts(organisationUnits)
                 }
             )
-            }
+        }
         )
 
         this.setLoading(false)
-        
+
     }
 
     fetchDistricts = async () => {
-        getInstance().then(d2=>{
-                const api = d2.Api.getApi()
-                const p = api.get("organisationUnits", {
-                    level: "3",
-                    fields: "id,displayName",
-                    paging: false
-                }) 
-                Promise.all([p]).then(
-                    (values)=>{
-                        console.log(">>>>>>", values[0])
-                        const {organisationUnits} = values[0]
-                        this.setDistricts(organisationUnits)
-                    }
-                )
-            }
+        getInstance().then(d2 => {
+            const api = d2.Api.getApi()
+            const p = api.get("organisationUnits", {
+                level: "3",
+                fields: "id,displayName",
+                paging: false
+            })
+            Promise.all([p]).then(
+                (values) => {
+                    console.log(">>>>>>", values[0])
+                    const { organisationUnits } = values[0]
+                    this.setDistricts(organisationUnits)
+                }
+            )
+        }
         )
     }
 
     sendNotifications = async (messagePayLoad) => {
         getInstance().then(d2 => {
-            const api = d2.Api.getApi() 
+            const api = d2.Api.getApi()
             try {
                 api.post("messageConversations", messagePayLoad)
             } catch {
@@ -116,8 +124,8 @@ class Store {
             const api = d2.Api.getApi()
             const url = "events/" + eventID
             try {
-                const {orgUnit, dataValues} = api.get(
-                    url, {fields: "orgUnit,dataValues[dataElement,value]"})
+                const { orgUnit, dataValues } = api.get(
+                    url, { fields: "orgUnit,dataValues[dataElement,value]" })
                 var cValues = {}
                 const eValues = dataValues.map(i => {
                     var y = {}
@@ -138,7 +146,115 @@ class Store {
             }
         })
     }
+    fetchChartData = async (dataDimension) => {
+        const api = this.d2.Api.getApi();
+        const data = await api.get(`analytics/events/aggregate/iaN1DovM5em?filter=pe:${this.filteringPeriod}&filter=ou:USER_ORGUNIT&dimension=${dataDimension}`)
+        return data;
+    }
 
+    fetchTotalMessages = async () => {
+        const api = this.d2.Api.getApi();
+        const dateString = ""
+        var filterString = ""
+        const dateToday = moment().format('YYYY-MM-DD')
+        switch (this.filteringPeriod) {
+            case "TODAY":
+                filterString = `filter=lastUpdated:ge:${dateToday}`
+                break
+            case "YESTERDAY":
+                const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${yesterday}&filter=lastUpdated:le:${dateToday}`
+                break
+            case "LAST_WEEK":
+                const lastWeekStart = moment().subtract(7, 'days').startOf('week').format('YYYY-MM-DD')
+                const lastWeekEnd = moment().subtract(7, 'days').endOf('week').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${lastWeekStart}&filter=lastUpdated:le:${lastWeekEnd}`
+                break
+            case "THIS_WEEK":
+                const weekStart = moment().startOf('week').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${weekStart}&filter=lastUpdated:le:${dateToday}`
+                break
+            case "LAST_MONTH":
+                const lastMonthStart = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+                const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${lastMonthStart}&filter=lastUpdated:le:${lastMonthEnd}`
+                break
+            case "THIS_MONTH":
+                const thisMonthStart = moment().subtract(0, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${thisMonthStart}&filter=lastUpdated:le:${dateToday}`
+                break
+            case "LAST_3_MONTHS":
+                const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${last3MonthStart}`
+                break
+            case "LAST_YEAR":
+                const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
+                const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${lastYearStart}&filter=lastUpdate:le:${lastYearEnd}`
+                break
+            case "THIS YEAR":
+                const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
+                filterString = `filter=lastUpdated:ge:${thisYearStart}&filter=lastUpdated:le:${dateToday}`
+                break
+            default:
+                filterString = `filter=lastUpdated:ge:${dateToday}`
+
+        }
+        const data = await api.get(`sms/inbound?${filterString}&pageSize=1`)
+        return data
+    }
+
+    fetchTotalAlerts = async () => {
+        const api = this.d2.Api.getApi();
+        const dateString = ""
+        var filterString = ""
+        const dateToday = moment().format('YYYY-MM-DD')
+        switch (this.filteringPeriod) {
+            case "TODAY":
+                filterString = `startDate=${dateToday}`
+                break
+            case "YESTERDAY":
+                const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
+                filterString = `startDate=${yesterday}&endDate${dateToday}`
+                break
+            case "LAST_WEEK":
+                const lastWeekStart = moment().subtract(7, 'days').startOf('week').format('YYYY-MM-DD')
+                const lastWeekEnd = moment().subtract(7, 'days').endOf('week').format('YYYY-MM-DD')
+                filterString = `startDate=${lastWeekStart}&endDate=${lastWeekEnd}`
+                break
+            case "THIS_WEEK":
+                const weekStart = moment().startOf('week').format('YYYY-MM-DD')
+                filterString = `startDate=${weekStart}&endDate=${dateToday}`
+                break
+            case "LAST_MONTH":
+                const lastMonthStart = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+                const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+                filterString = `startDate=${lastMonthStart}&endDate=${lastMonthEnd}`
+                break
+            case "THIS_MONTH":
+                const thisMonthStart = moment().subtract(0, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `startDate=${thisMonthStart}&endDate=${dateToday}`
+                break
+            case "LAST_3_MONTHS":
+                const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `startDate=${last3MonthStart}&endDate=${dateToday}`
+                break
+            case "LAST_YEAR":
+                const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
+                const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
+                filterString = `startDate=${lastYearStart}&endDate=${lastYearEnd}`
+                break
+            case "THIS YEAR":
+                const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
+                filterString = `startDate=${thisYearStart}&endDate=${dateToday}`
+                break
+            default:
+                filterString = `startDate=${dateToday}`
+
+        }
+        const data = await api.get(`events?program=iaN1DovM5em&orgUnit=${this.defaultOrgUnit}&${filterString}&totalPages=true&fields=event&pageSize=1&ouMode=DESCENDANTS`)
+        return data
+    }
 
 }
 

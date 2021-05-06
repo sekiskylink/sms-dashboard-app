@@ -1,6 +1,6 @@
 import propTypes from 'prop-types'
 import { useReadEventQuery } from './useReadEventQuery'
-import styles from './Events.module.css'
+import {ForwardOutlined} from '@ant-design/icons'
 
 export const EventExists = ({id}) => {
     const { loading, error, data } = useReadEventQuery(id)
@@ -18,7 +18,7 @@ export const EventExists = ({id}) => {
 
     return (
         <>
-        <span className={styles.dot}></span>&nbsp;
+        <ForwardOutlined />
         </>
     )
 }

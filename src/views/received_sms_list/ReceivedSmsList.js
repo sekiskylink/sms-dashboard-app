@@ -30,6 +30,7 @@ const parseParams = ({ page, pageSize, phoneNumber, status }) => {
 
     const filters = []
     if (phoneNumber) {
+        filters.push(`text:ilike:${phoneNumber}`)
         filters.push(`originator:ilike:${phoneNumber}`)
     }
     if (status && status !== 'ALL') {
@@ -38,6 +39,7 @@ const parseParams = ({ page, pageSize, phoneNumber, status }) => {
 
     if (filters.length > 0) {
         params.filter = filters
+        params.rootJunction = 'OR'
     }
 
     return params
@@ -88,11 +90,11 @@ export const ReceivedSmsList = () => {
             <PageHeadline>{RECEIVED_SMS_LIST_LABEL}</PageHeadline>
             <header className={styles.header}>
                 <Filter />
-                <DeleteSelectedButton
+                {/* <DeleteSelectedButton
                     selectedIds={selectedIds}
                     type="inbound"
                     onComplete={refetchAndClear}
-                />
+                /> */}
             </header>
             {loading || !called ? (
                 <CenteredContent>
