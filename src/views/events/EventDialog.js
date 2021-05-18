@@ -1,7 +1,7 @@
 // import { PropTypes } from '@dhis2/prop-types'
 import React, { useState } from 'react'
 import moment from 'moment';
-import { Modal, Form, Button, Input, DatePicker, Space, Row, Col } from 'antd'
+import { Modal, Form, Button, Input, InputNumber, DatePicker, Space, Row, Col } from 'antd'
 import { FieldDistrict } from '../../orgUnit/FieldDistrict'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
@@ -16,6 +16,7 @@ import { observer } from "mobx-react-lite"
 import { useStore } from '../../context/context'
 
 import i18n from '../../locales'
+import { FieldAge } from '../../events/FieldAge';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
@@ -65,6 +66,7 @@ export const EventDialog = observer(({ message, event }) => {
         const completeDate = new Date().toISOString().slice(0, 10);
         var toCompleteEvent = false
         var assignToNationalLevel = false
+        var age = undefined
         let dataValues = [];
         for (let i in values) {
             if (i === 'dateOfOnset' && values[i] instanceof Object) {
@@ -74,14 +76,23 @@ export const EventDialog = observer(({ message, event }) => {
             }
             else {
                 if (i in eventConfs) { // Let's only add those dateElements in our configuration
-                    dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                    if (i === 'age') {
+                        age = values[i] && (Object.keys(values[i]).length > 0) && values[i].age ? values[i].age.format("YYYY-MM-DD") : ""
+                        if (age !== "" && age !== undefined) {
+                            dataValues.push({ dataElement: eventConfs[i], value: age })
+                        }
+                    } else {
+                        if (values[i] && values[i].length > 0) {
+                            dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                        }
+                    }
 
                     /*We only complet event if Action taken is present*/
                     if (i === 'actionTaken' && values[i].length > 0) {
                         toCompleteEvent = true
                     }
                     /* Assign unactionabel events to National level */
-                    if (i === 'status' && values[i] === "unactionable") {
+                    if (i === 'status' && values[i] === "Unactionable") {
                         assignToNationalLevel = true
                     }
                 }
@@ -125,6 +136,17 @@ export const EventDialog = observer(({ message, event }) => {
             sm: { span: 14 },
         },
     };
+
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        return current && current > moment().endOf('day');
+    }
+
+    const yearsChange = (value) => {
+        console.log("Value:", value)
+        return value
+    }
+
     return (
         <>
             <Button type="default" onClick={showModal}>
@@ -136,7 +158,7 @@ export const EventDialog = observer(({ message, event }) => {
                 confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
                 <p style={{ textAlign: "left" }}> Message: {message.text}</p>
-                <Form form={form} onFinish={handleOk}>
+                <Form form={form} onFinish={handleOk} >
                     <Row>
                         <Col span={13}>
                             <FormItem
@@ -170,7 +192,11 @@ export const EventDialog = observer(({ message, event }) => {
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('followupDate'), "YYYY-MM-DD")}
+                                    defaultValue={
+                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
+                                    }
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
                             <FormItem
@@ -194,16 +220,18 @@ export const EventDialog = observer(({ message, event }) => {
 
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD")}
+                                    defaultValue={
+                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
+                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
+                                    }
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
                             {/* Age and Gender Go Here */}
-                            <FormItem
-                                {...formItemLayout} hidden={false} label="Age" name="age"
-                                initialValue={getInitialValue('age')}
-                                style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
-                                <Input placeholder="" />
-                            </FormItem>
+                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={moment(getInitialValue('age'), "YYYY-MM-DD")}
+                            />
+
                             <FormItem
                                 {...formItemLayout} label="Gender" name="gender"
                                 initialValue={getInitialValue('gender')}
@@ -217,9 +245,7 @@ export const EventDialog = observer(({ message, event }) => {
                                 <Input placeholder="Location (Village/Parish/Sub-county/District)" />
                             </FormItem>
 
-
                             {/* Patient has Signs goes here */}
-
 
                         </Col>
                         <Col span={11}>
@@ -231,7 +257,7 @@ export const EventDialog = observer(({ message, event }) => {
                                 <Input />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="Name of Submitter" name="nameOfSubmitter"
+                                {...formItemLayout} label="Name of Reporter" name="nameOfSubmitter"
                                 initialValue={getInitialValue('nameOfSubmitter')}>
                                 <Input placeholder="Name of Submitter" />
                             </FormItem>

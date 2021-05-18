@@ -16,7 +16,9 @@ export const OrgUnitFilter = observer(({ name }) => {
     const store = useStore()
     if (loading) {
         return (
-            <Select placeholder={i18n.t('District')}>
+            <Select placeholder={i18n.t('Select District')}
+                style={{ width: 250, color: "#000", background: "#009966" }}
+            >
 
             </Select>
         )
@@ -24,7 +26,9 @@ export const OrgUnitFilter = observer(({ name }) => {
 
     if (error) {
         return (
-            <Select placeholder={i18n.t('District')}>
+            <Select placeholder={i18n.t('Select District')}
+                style={{ width: 250, color: "#000", background: "#009966" }}
+            >
             </Select>
         )
     }

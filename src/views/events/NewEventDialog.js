@@ -5,6 +5,7 @@ import { FieldDistrict } from '../../orgUnit/FieldDistrict'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
 import { FieldUserGroup } from '../../events/FieldUserGroup'
+import { FieldAge } from '../../events/FieldAge'
 import { FieldCaseTypeOptionSet } from '../../events/FieldCaseTypeOptionSet'
 import {
     eventToMessage,
@@ -43,6 +44,7 @@ export const NewEventDialog = observer(() => {
         var toCompleteEvent = false
         var assignToNationalLevel = false
         let dataValues = [];
+        var age = ""
         for (let i in values) {
             if (i === 'dateOfOnset' && values[i] instanceof Object) {
                 // Only add dateOfOnset if defined
@@ -51,24 +53,34 @@ export const NewEventDialog = observer(() => {
             }
             else {
                 if (i in eventConfs) { // Let's only add those dateElements in our configuration
-                    dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                    if (i === 'age') {
+                        age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
+                            values[i].age.format("YYYY-MM-DD") : ""
+                        if (age !== "" && age !== undefined) {
+                            dataValues.push({ dataElement: eventConfs[i], value: age })
+                        }
+
+                    } else {
+                        if (values[i] && values[i].length > 0) {
+                            dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                        }
+
+                    }
 
                     /*We only complet event if Action taken is present*/
-                    if (i === 'actionTaken' && values[i].length > 0) {
+                    if (i === 'actionTaken' && values[i] && values[i].length > 0) {
                         toCompleteEvent = true
                     }
                     /* Assign unactionabel events to National level */
-                    if (i === 'status' && values[i] === "unactionable") {
+                    if (i === 'status' && values[i] && values[i] === "unactionable") {
                         assignToNationalLevel = true
                     }
                 }
             }
         }
         const eventPayload = {
-            event: values["event"],
             program: eventConfs["program"],
             orgUnit: values["district"],
-            // eventDate: values["alertDate"]["_d"].toISOString().slice(0, 10),
             eventDate: values["alertDate"],
             // status: "COMPLETED",
             // completeDate: completeDate,
@@ -102,6 +114,12 @@ export const NewEventDialog = observer(() => {
             sm: { span: 14 },
         },
     };
+
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        return current && current > moment().endOf('day');
+    }
+
     return (
         <>
             <Button type="default" onClick={showModal}>
@@ -115,6 +133,18 @@ export const NewEventDialog = observer(() => {
                 <Form form={form} onFinish={handleOk}>
                     <Row>
                         <Col span={13}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="Text"
+                                name="text">
+                                <TextArea rows={3} />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="Reporter Phone" hidden={false}
+                                name="phone">
+                                <Input placeholder="Reporter Phone Number" />
+                            </FormItem>
                             <FormItem
                                 {...formItemLayout} label="SMS Status" name="status"
                             >
@@ -145,13 +175,13 @@ export const NewEventDialog = observer(() => {
                             <FormItem
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
                                 <DatePicker style={{ width: "60%" }}
-
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
                             <FormItem
                                 {...formItemLayout} label="Date Alert Received"
                                 name="alertDate"
-                                hidden={true}>
+                                hidden={true} initialValue={alertDate.format("YYYY-MM-DD")}>
                                 <Input />
                             </FormItem>
 
@@ -168,16 +198,15 @@ export const NewEventDialog = observer(() => {
                             >
 
                                 <DatePicker style={{ width: "60%" }}
-
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
                             {/* Age and Gender Go Here */}
-                            <FormItem
-                                {...formItemLayout} hidden={false} label="Age" name="age"
 
-                                style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
-                                <Input placeholder="" />
-                            </FormItem>
+                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={undefined}
+                            />
+
                             <FormItem
                                 {...formItemLayout} label="Gender" name="gender"
 
@@ -185,11 +214,7 @@ export const NewEventDialog = observer(() => {
                                 <FieldOptionSet id="WNqjeSlrS3r" placeholder="Gender"
                                     name='gender' form={form} />
                             </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Location" name="location"
-                            >
-                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
-                            </FormItem>
+
 
 
                             {/* Patient has Signs goes here */}
@@ -197,17 +222,15 @@ export const NewEventDialog = observer(() => {
 
                         </Col>
                         <Col span={11}>
-                            <FormItem hidden={true} name="event">
-                                <Input />
-                            </FormItem>
-
-                            <FormItem hidden={true} name="text">
-                                <Input />
+                            <FormItem
+                                {...formItemLayout} label="Location" name="location"
+                            >
+                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="Name of Submitter" name="nameOfSubmitter"
+                                {...formItemLayout} label="Name of Reporter" name="nameOfSubmitter"
                             >
-                                <Input placeholder="Name of Submitter" />
+                                <Input placeholder="Name of Reporter" />
                             </FormItem>
 
                             <FormItem
@@ -225,12 +248,7 @@ export const NewEventDialog = observer(() => {
                                 <FieldOptionSet id="L6eMZDJkCwX" placeholder="Patient has Signs"
                                     name='hasSigns' form={form} />
                             </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="Phone Number of Submitter" hidden={true}
-                                name="phone">
-                                <Input placeholder="Phone Number of the Submitter" />
-                            </FormItem>
+
 
                             <FormItem
                                 {...formItemLayout} label="Action Taken" name="actionTaken"

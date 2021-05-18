@@ -32,6 +32,7 @@ export const FieldPeriods = observer(() => {
                 <Option key="thismonth" value="THIS_MONTH">This Month</Option>
                 <Option key="lastmonth" value="LAST_MONTH">Last Month</Option>
                 <Option key="last3month" value="LAST_3_MONTHS">Last 3 Months</Option>
+                <Option key="last6month" value="LAST_6_MONTHS">Last 6 Months</Option>
                 <Option key="thisyear" value="THIS_YEAR">This Year</Option>
                 <Option key="lastyear" value="LAST_YEAR">Last Year</Option>
             </Select>

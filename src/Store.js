@@ -190,6 +190,10 @@ class Store {
                 const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
                 filterString = `filter=receiveddate:ge:${last3MonthStart}`
                 break
+            case "LAST_6_MONTHS":
+                const last6MonthStart = moment().subtract(6, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `filter=receiveddate:ge:${last6MonthStart}`
+                break
             case "LAST_YEAR":
                 const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
                 const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
@@ -241,6 +245,10 @@ class Store {
             case "LAST_3_MONTHS":
                 const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
                 filterString = `startDate=${last3MonthStart}&endDate=${dateToday}`
+                break
+            case "LAST_6_MONTHS":
+                const last6MonthStart = moment().subtract(6, 'month').startOf('month').format('YYYY-MM-DD')
+                filterString = `startDate=${last6MonthStart}&endDate=${dateToday}`
                 break
             case "LAST_YEAR":
                 const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')

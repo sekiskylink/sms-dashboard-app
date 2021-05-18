@@ -7,6 +7,7 @@ import { FieldOptionSet } from './FieldOptionSet'
 import { FieldStatusOptionSet } from './FieldStatusOptionSet'
 import { FieldCaseTypeOptionSet } from './FieldCaseTypeOptionSet'
 import { FieldUserGroup } from './FieldUserGroup'
+import { FieldAge } from './FieldAge'
 import { useStore } from '../context/context'
 import { observer } from 'mobx-react-lite'
 import {
@@ -81,6 +82,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
         var toCompleteEvent = false
         var assignToNationalLevel = false
         let dataValues = [];
+        var age = ""
         for (let i in values) {
             if (i === 'dateOfOnset' && values[i] instanceof Object) {
                 // Only add dateOfOnset if defined
@@ -89,8 +91,19 @@ export const EventDialog = observer(({ message, forUpdate }) => {
             }
             else {
                 if (i in eventConfs) { // Let's only add those dateElements in our configuration
-                    dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                    if (i === 'age') {
+                        age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
+                            values[i].age.format("YYYY-MM-DD") : ""
+                        if (age !== "" && age !== undefined) {
+                            dataValues.push({ dataElement: eventConfs[i], value: age })
+                        }
+                    } else {
+                        if (values[i] && values[i].length > 0) {
+                            dataValues.push({ dataElement: eventConfs[i], value: values[i] })
 
+                        }
+
+                    }
                     /*We only complet event if Action taken is present*/
                     if (i === 'actionTaken' && values[i].length > 0) {
                         toCompleteEvent = true
@@ -140,7 +153,12 @@ export const EventDialog = observer(({ message, forUpdate }) => {
             sm: { span: 14 },
         },
     };
-    const buttonName = forUpdate === 1 ? 'Update Event' : 'Log Event'
+    const disabledDate = (current) => {
+        // Can not select days before today and today
+        return current && current > moment().endOf('day');
+    }
+
+    const buttonName = forUpdate === 1 ? 'Update Event' : 'Forward Event'
     const okTextName = forUpdate === 1 ? 'Update' : 'Save'
     return (
         <>
@@ -190,7 +208,11 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('followupDate'), "YYYY-MM-DD")}
+                                    defaultValue={
+                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
+                                    }
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
 
@@ -209,16 +231,17 @@ export const EventDialog = observer(({ message, forUpdate }) => {
 
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
-                                    value={moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD")}
+                                    defaultValue={
+                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
+                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
+                                    }
+                                    disabledDate={disabledDate}
                                 />
                             </FormItem>
                             {/* Age and Gender go here */}
-                            <FormItem
-                                {...formItemLayout} hidden={false} label="Age" name="age"
-                                initialValue={getInitialValue('age')}
-                                style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
-                                <Input placeholder="" />
-                            </FormItem>
+                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={moment(getInitialValue('age'), "YYYY-MM-DD")}
+                            />
                             <FormItem
                                 {...formItemLayout} label="Gender" name="gender"
                                 initialValue={getInitialValue('gender')}
