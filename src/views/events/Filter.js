@@ -13,15 +13,17 @@ import { useQueryParams } from './useQueryParams'
 import { createSearchString } from '../../utils'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../context/context'
+import { eventConfs } from '../../events'
 import styles from './Filter.module.css'
 
 const DistrictFieldSelect = observer(() => {
     const store = useStore()
     const history = useHistory()
-    const { pageSize, orgUnit } = useQueryParams(store.defaultOrgUnit)
+    const { pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
 
     const handleOrgUnitChange = ({ selected }) => {
         console.log("Selected District is", selected)
+        store.setSearchOrgUnit(selected)
         history.push({
             search: createSearchString({
                 orgUnit: selected,
@@ -43,7 +45,17 @@ const DistrictFieldSelect = observer(() => {
             dataTest="orgunit-filter"
             placeholder={"Select District"}
         >
-            {districtsOptions}
+            {store.IsGlobalUser ?
+                <SingleSelectOption key={eventConfs.nationalOrgUnit}
+                    value={eventConfs.nationalOrgUnit} label={"National"}>National
+                </SingleSelectOption> :
+                <SingleSelectOption key={store.defaultOrgUnit}
+                    value={store.defaultOrgUnit} label={"My OrganisationUnit"}>My OrganisationUnit
+                </SingleSelectOption>
+            }
+            {store.IsGlobalUser &&
+                districtsOptions
+            }
 
         </SingleSelectField>
     )
@@ -52,7 +64,7 @@ const DistrictFieldSelect = observer(() => {
 
 const Filter = observer(() => {
     const store = useStore()
-    const { pageSize, orgUnit } = useQueryParams(store.defaultOrgUnit)
+    const { pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
     const history = useHistory()
 
     const handleReset = () => {

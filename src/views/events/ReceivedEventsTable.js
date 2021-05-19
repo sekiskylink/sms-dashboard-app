@@ -10,7 +10,8 @@ import styles from './ReceivedEventsTable.module.css'
 
 export const ReceivedEventsTable = ({
     events,
-    pager
+    pager,
+    refetchFn
 }) => (
     <EventTable
         events={events}
@@ -44,7 +45,7 @@ export const ReceivedEventsTable = ({
                 </TableCell>
                 {/* DialogForm for Updates goes here*/}
                 <TableCell>
-                    <EventDialog message={message} event={event}/>
+                    <EventDialog message={message} event={event} refetchFn={refetchFn} />
                 </TableCell>
             </>
         )}
@@ -54,4 +55,5 @@ export const ReceivedEventsTable = ({
 ReceivedEventsTable.propTypes = {
     events: PropTypes.arrayOf(PropTypes.object).isRequired,
     pager: PropTypes.PropTypes.object.isRequired,
+    refetchFn: PropTypes.func
 }

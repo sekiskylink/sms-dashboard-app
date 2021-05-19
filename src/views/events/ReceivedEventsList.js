@@ -54,7 +54,7 @@ const query = {
 
 export const ReceivedEventsList = observer(() => {
     const store = useStore()
-    const { page, pageSize, orgUnit } = useQueryParams(store.defaultOrgUnit)
+    const { page, pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
     const { called, loading, error, data, refetch } = useDataQuery(query, {
         lazy: true,
     })
@@ -65,7 +65,7 @@ export const ReceivedEventsList = observer(() => {
 
     useEffect(() => {
         refetch({ page, pageSize, orgUnit })
-    }, [page, pageSize, store.defaultOrgUnit])
+    }, [page, pageSize, store.searchOrgUnit])
 
 
 
@@ -97,7 +97,7 @@ export const ReceivedEventsList = observer(() => {
                 {store.IsGlobalUser &&
                     <Filter />
                 }
-                <NewEventDialog />
+                <NewEventDialog refetchFn={refetchAndClear} />
 
             </header>
 
@@ -110,6 +110,7 @@ export const ReceivedEventsList = observer(() => {
                     events={events}
                     pager={data.events.pager}
                     userIsGlobal={store.IsGlobalUser}
+                    refetchFn={refetchAndClear}
                 />
             )}
         </div>
