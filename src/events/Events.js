@@ -14,6 +14,7 @@ export const eventConfs = {
     status: "nFNdf8wcGNu",
     text: "Yb5K4WNhFcq",
     status_update_date: "Pwr85z28pXn",
+    followupDate: "AfnfCVQuqgw",
     comment: "MYIDtPnvepJ",
     suspectedDisease: "elGqdsbgahz",
     hasSigns: "qZbnrWP7sAc",
@@ -83,10 +84,19 @@ export const saveEvent = async (eventPayload) => {
     const d2 = await getInstance()
     const api = d2.Api.getApi()
     try {
-        await api.post("events", eventPayload)
+        const p = await api.post("events", eventPayload)
+        if (!!p) {
+            console.log("Just saved event=>", p)
+            if (p.httpStatus === 'OK') {
+                return true
+            }
+
+        }
     } catch {
         console.log("Error Saving Event: ", eventPayload)
+        return false
     }
+    return false
 }
 
 export const getUserEventIDs = async () => {

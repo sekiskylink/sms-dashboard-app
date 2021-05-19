@@ -1,4 +1,4 @@
-// import { PropTypes } from '@dhis2/prop-types'
+import { PropTypes } from '@dhis2/prop-types'
 import React, { useState } from 'react'
 import moment from 'moment';
 import { Modal, Form, Button, Input, InputNumber, DatePicker, Space, Row, Col } from 'antd'
@@ -21,7 +21,7 @@ import { FieldAge } from '../../events/FieldAge';
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const EventDialog = observer(({ message, event }) => {
+export const EventDialog = observer(({ message, event, refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
@@ -29,6 +29,7 @@ export const EventDialog = observer(({ message, event }) => {
     const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = () => {
+        console.log("MESSAGE", message)
         const cValues = eventToMessage(event)
         setCurrentEventValues(cValues)
         if ('district' in cValues) {
@@ -118,7 +119,11 @@ export const EventDialog = observer(({ message, event }) => {
             eventPayload['orgUnit'] = eventConfs["nationalOrgUnit"]
         }
         console.log(JSON.stringify(eventPayload));
-        saveEvent(eventPayload);
+        saveEvent(eventPayload).then((value) => {
+            if (value) {
+                refetchFn()
+            }
+        })
         setIsModalVisible(false);
     }
     const [form] = Form.useForm();
@@ -193,7 +198,8 @@ export const EventDialog = observer(({ message, event }) => {
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
                                     defaultValue={
-                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
+                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
                                             moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
                                     }
                                     disabledDate={disabledDate}
@@ -221,7 +227,8 @@ export const EventDialog = observer(({ message, event }) => {
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
                                     defaultValue={
-                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
+                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") &&
+                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
                                             moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
                                     }
                                     disabledDate={disabledDate}
@@ -280,7 +287,7 @@ export const EventDialog = observer(({ message, event }) => {
                             <FormItem
                                 {...formItemLayout}
                                 label="Phone Number of Submitter" hidden={true}
-                                name="phone" initialValue={message.originator}>
+                                name="phone" initialValue={message.phone}>
                                 <Input placeholder="Phone Number of the Submitter" />
                             </FormItem>
 
@@ -319,3 +326,9 @@ export const EventDialog = observer(({ message, event }) => {
         </>
     );
 })
+
+EventDialog.propTypes = {
+    message: PropTypes.PropTypes.object,
+    event: PropTypes.PropTypes.object,
+    refetchFn: PropTypes.func,
+}

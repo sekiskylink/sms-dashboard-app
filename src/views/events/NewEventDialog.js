@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { PropTypes } from '@dhis2/prop-types'
 import moment from 'moment';
 import { Modal, Form, Button, Input, DatePicker, Space, Row, Col } from 'antd'
 import { FieldDistrict } from '../../orgUnit/FieldDistrict'
@@ -20,7 +21,7 @@ import i18n from '../../locales'
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const NewEventDialog = observer(() => {
+export const NewEventDialog = observer(({ refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
@@ -96,7 +97,11 @@ export const NewEventDialog = observer(() => {
             eventPayload['orgUnit'] = eventConfs["nationalOrgUnit"]
         }
         console.log(JSON.stringify(eventPayload));
-        saveEvent(eventPayload);
+        saveEvent(eventPayload).then((value) => {
+            if (value) {
+                refetchFn()
+            }
+        })
         setIsModalVisible(false);
     }
     const [form] = Form.useForm();
@@ -285,3 +290,7 @@ export const NewEventDialog = observer(() => {
         </>
     );
 })
+
+NewEventDialog.propTypes = {
+    refetchFn: PropTypes.func,
+}

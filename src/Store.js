@@ -9,6 +9,7 @@ class Store {
     IsGlobalUser = false;
     loading = false;
     defaultOrgUnit = ''
+    searchOrgUnit = ''
     districts = []
     userGroups = []
     filteringPeriod = "LAST_MONTH"
@@ -34,6 +35,7 @@ class Store {
     setUserGroups = val => (this.userGroups = val)
     setUserGlobalStatus = (val) => (this.IsGlobalUser = val)
     setDefaultOrgUnit = (val) => (this.defaultOrgUnit = val)
+    setSearchOrgUnit = (val) => (this.searchOrgUnit = val)
     setDistricts = (val) => (this.districts = val)
     setCaseTypeHumanSelected = (val) => (this.caseTypeHumanSelected = val)
     setCaseTypeAnimalSelected = (val) => (this.caseTypeAnimalSelected = val)
@@ -57,6 +59,7 @@ class Store {
         if (orgUnits.toArray().length > 0) {
             this.setDefaultOrgUnit(orgUnits.toArray()[0].id)
             this.setFilteringOrgUnit(orgUnits.toArray()[0].id) /*just set this as filtering orgUnit*/
+            this.setSearchOrgUnit(orgUnits.toArray()[0].id)
         }
 
         /*set districts */
@@ -115,7 +118,10 @@ class Store {
         getInstance().then(d2 => {
             const api = d2.Api.getApi()
             try {
-                api.post("events", eventPayload)
+                const p = api.post("events", eventPayload)
+                Promise.all([p]).then((values) => {
+                    console.log("Response After Saving:=>", values)
+                })
             } catch {
                 console.log("Error Saving Event: ", eventPayload)
             }
