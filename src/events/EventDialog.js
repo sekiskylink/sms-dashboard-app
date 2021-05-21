@@ -63,7 +63,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
 
     const handleOk = async (values) => {
         console.log("submited values", values)
-        if (typeof values.notifyusers != "undefined" & values.notifyusers.length) {
+        if (typeof values.notifyusers != "undefined" && values.notifyusers.length) {
             const msgPayload = {
                 subject: "Alert from " + message.originator + " on " + message.receiveddate,
                 text: message.text + " [from: " + message.originator + " on: " + message.receiveddate + "]",
@@ -84,37 +84,51 @@ export const EventDialog = observer(({ message, forUpdate }) => {
         let dataValues = [];
         var age = ""
         for (let i in values) {
-            if (i === 'dateOfOnset' && values[i] instanceof Object) {
-                // Only add dateOfOnset if defined
-                const onsetDate = values[i].toISOString().slice(0, 10)
-                dataValues.push({ dataElement: eventConfs[i], value: onsetDate })
-            }
-            else {
-                if (i in eventConfs) { // Let's only add those dateElements in our configuration
-                    if (i === 'age') {
-                        age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
-                            values[i].age.format("YYYY-MM-DD") : ""
-                        if (age !== "" && age !== undefined) {
-                            dataValues.push({ dataElement: eventConfs[i], value: age })
-                        }
-                    } else {
-                        if (values[i] && values[i].length > 0) {
-                            dataValues.push({ dataElement: eventConfs[i], value: values[i] })
-
-                        }
-
+            switch (i) {
+                case 'followupDate':
+                    if (values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("YYYY-MM-DD")
+                        })
                     }
-                    /*We only complet event if Action taken is present*/
-                    if (i === 'actionTaken' && values[i].length > 0) {
+                    break
+                case 'dateOfOnset':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("YYYY-MM-DD")
+                        })
+                    }
+                    break
+                case 'actionTaken':
+                    if (values[i] && values[i].length > 0) {
+                        /*We only complet event if Action taken is present*/
                         toCompleteEvent = true
+                        dataValues.push({ dataElement: eventConfs[i], value: values[i] })
                     }
-                    /* Assign unactionabel events to National level */
-                    if (i === 'status' && values[i] === "unactionable") {
+                    break
+                case 'age':
+                    age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
+                        values[i].age.format("YYYY-MM-DD") : ""
+                    if (age !== "" && age !== undefined) {
+                        dataValues.push({ dataElement: eventConfs[i], value: age })
+                    }
+                    break
+                case 'status':
+                    if (values[i] === "unactionable") {
+                        /* Assign unactionabel events to National level */
                         assignToNationalLevel = true
                     }
-                }
+                    dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                    break
+                default:
+                    if ((i in eventConfs) && values[i] && values[i].length > 0) {
+                        dataValues.push({ dataElement: eventConfs[i], value: values[i] })
 
+                    }
             }
+
         }
         const eventPayload = {
             event: values["event"],
@@ -209,7 +223,8 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                 <DatePicker style={{ width: "60%" }}
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
                                     defaultValue={
-                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
+                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
                                             moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
                                     }
                                     disabledDate={disabledDate}
@@ -272,12 +287,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                 <Input placeholder="Name of Submitter" />
                             </FormItem>
 
-                            <FormItem
-                                {...formItemLayout} label="Source of Rumor" name="rumorSource"
-                                initialValue={getInitialValue('rumorSource')}>
-                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
-                                    name='rumorSource' form={form} />
-                            </FormItem>
+
                             <FormItem
                                 {...formItemLayout}
                                 label="Phone Number of Submitter" hidden={true}
@@ -301,6 +311,20 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                     name='hasSigns' form={form} />
                             </FormItem>
                             <FormItem
+                                {...formItemLayout} label="Suspected Disease" name="suspectedDisease"
+                                initialValue={getInitialValue('suspectedDisease')}
+                                style={
+                                    (store.caseTypeHumanSelected || store.caseTypeAnimalSelected) ? { hidden: false } : { display: 'none' }}>
+                                <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
+                                    name='suspectedDisease' form={form} />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout} label="Source of Rumor" name="rumorSource"
+                                initialValue={getInitialValue('rumorSource')}>
+                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
+                                    name='rumorSource' form={form} />
+                            </FormItem>
+                            <FormItem
                                 {...formItemLayout} label="Action Taken" name="actionTaken"
                                 initialValue={getInitialValue('actionTaken')}>
                                 <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
@@ -314,14 +338,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                     name='followupAction' form={form} />
                             </FormItem>
 
-                            <FormItem
-                                {...formItemLayout} label="Suspected Disease" name="suspectedDisease"
-                                initialValue={getInitialValue('suspectedDisease')}
-                                style={
-                                    (store.caseTypeHumanSelected || store.caseTypeAnimalSelected) ? { hidden: false } : { display: 'none' }}>
-                                <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
-                                    name='suspectedDisease' form={form} />
-                            </FormItem>
+
 
                             <FormItem
                                 {...formItemLayout}

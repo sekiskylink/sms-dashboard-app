@@ -21,7 +21,7 @@ export const FieldPeriods = observer(() => {
                 placeholder={i18n.t('Select Period')}
                 onChange={handleChange}
                 value={store.filteringPeriod}
-                // defaultValue={["LAST_MONTH"]}
+                // defaultValue={["THIS_WEEK"]}
                 autoClearSearchValue={false}
                 style={{ width: 250, color: "#000", background: "#009966" }}
             >

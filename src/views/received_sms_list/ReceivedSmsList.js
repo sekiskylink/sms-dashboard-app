@@ -10,7 +10,7 @@ import { Filter } from './Filter'
 import { ReceivedSmsTable } from './ReceivedSmsTable'
 import styles from './ReceivedSmsList.module.css'
 
-export const RECEIVED_SMS_LIST_LABEL = i18n.t('Received SMS')
+export const RECEIVED_SMS_LIST_LABEL = i18n.t('Received Alerts')
 export const RECEIVED_SMS_LIST_PATH = '/received'
 
 const parseParams = ({ page, pageSize, phoneNumber, status }) => {

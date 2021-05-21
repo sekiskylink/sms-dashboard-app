@@ -11,9 +11,9 @@ import { eventConfs } from '../../events'
 const { Option } = Select;
 
 export const OrgUnitFilter = observer(({ name }) => {
-    const [selected, setSelected] = useState()
-    const { loading, error, data } = useReadOrgUnitsQuery()
     const store = useStore()
+    const [selected, setSelected] = useState(store.defaultOrgUnit)
+    const { loading, error, data } = useReadOrgUnitsQuery()
     if (loading) {
         return (
             <Select placeholder={i18n.t('Select District')}

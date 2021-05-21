@@ -38,7 +38,7 @@ export const BarGraph = observer(({ title, dataDimension }) => {
                                     // marker: {color: 'red'},
                                 },
                             ]}
-                            layout={layout} /> : <div>No data</div>
+                            layout={layout} /> : <></>
                     }
                 </div>
             }

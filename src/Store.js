@@ -12,7 +12,7 @@ class Store {
     searchOrgUnit = ''
     districts = []
     userGroups = []
-    filteringPeriod = "LAST_MONTH"
+    filteringPeriod = "THIS_WEEK"
     filteringOrgUnit = ''
     caseTypeHumanSelected = false
     caseTypeAnimalSelected = false

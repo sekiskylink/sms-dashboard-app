@@ -6,9 +6,8 @@ import debounce from 'lodash.debounce'
 import { dataTest } from '../../dataTest'
 import {
     Button,
-    SingleSelectField,
-    SingleSelectOption,
-} from '@dhis2/ui'
+    Select
+} from 'antd'
 import { useQueryParams } from './useQueryParams'
 import { createSearchString } from '../../utils'
 import { observer } from 'mobx-react-lite'
@@ -16,12 +15,14 @@ import { useStore } from '../../context/context'
 import { eventConfs } from '../../events'
 import styles from './Filter.module.css'
 
+const { Option } = Select;
+
 const DistrictFieldSelect = observer(() => {
     const store = useStore()
     const history = useHistory()
     const { pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
 
-    const handleOrgUnitChange = ({ selected }) => {
+    const handleOrgUnitChange = (selected) => {
         console.log("Selected District is", selected)
         store.setSearchOrgUnit(selected)
         history.push({
@@ -34,31 +35,30 @@ const DistrictFieldSelect = observer(() => {
     }
 
     const districtsOptions = store.districts.map((d) => (
-        <SingleSelectOption key={d.id} label={d.displayName} value={d.id}>{d.displayName}</SingleSelectOption>))
-    // console.log("VVVVVVVVVV", districtsOptions)
+        <Option key={d.id} label={d.displayName} value={d.id}>{d.displayName}</Option>))
     return (
-        <SingleSelectField
+        <Select
             label={i18n.t('Filter by District')}
-            inputWidth="200px"
+            style={{ width: "250px" }}
             onChange={handleOrgUnitChange}
-            // selected='NREoMszwQZW'
-            dataTest="orgunit-filter"
             placeholder={"Select District"}
+            size={"large"}
+            className={styles.filter}
         >
             {store.IsGlobalUser ?
-                <SingleSelectOption key={eventConfs.nationalOrgUnit}
+                <Option key={eventConfs.nationalOrgUnit}
                     value={eventConfs.nationalOrgUnit} label={"National"}>National
-                </SingleSelectOption> :
-                <SingleSelectOption key={store.defaultOrgUnit}
+                </Option> :
+                <Option key={store.defaultOrgUnit}
                     value={store.defaultOrgUnit} label={"My OrganisationUnit"}>My OrganisationUnit
-                </SingleSelectOption>
+                </Option>
             }
 
             {store.IsGlobalUser &&
                 districtsOptions
             }
 
-        </SingleSelectField>
+        </Select>
     )
 
 })
@@ -84,7 +84,10 @@ const Filter = observer(() => {
         >
             <div className={styles.inputStrip}>
                 <DistrictFieldSelect />
-                <Button large onClick={handleReset} dataTest="reset-filter-btn">
+                {/* <Button large onClick={handleReset} dataTest="reset-filter-btn">
+                    {i18n.t('Reset filter')}
+                </Button> */}
+                <Button onClick={handleReset} size={"large"}>
                     {i18n.t('Reset filter')}
                 </Button>
             </div>

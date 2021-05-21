@@ -29,10 +29,19 @@ export const PieChart = observer(({ title, dataDimension }) => {
                                     labels: data.rows.map((r) => r[0]),
                                     type: 'pie',
                                     name: 'SMS Status',
-                                    // marker: {color: 'red'},
+                                    marker: {
+                                        colors: [
+                                            'rgb(255, 255, 0)',
+                                            'rgb(255, 191, 0)',
+                                            'rgb(0, 0, 255)',
+                                            'rgb(0, 255, 0)',
+                                            'rgb(128, 128, 0)',
+
+                                        ]
+                                    },
                                 },
                             ]}
-                            layout={layout} /> : <div>No data</div>
+                            layout={layout} /> : <></>
                     }
                 </div>
             }
