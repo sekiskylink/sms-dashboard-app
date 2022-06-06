@@ -23,7 +23,7 @@ export const FieldPeriods = observer(() => {
                 value={store.filteringPeriod}
                 // defaultValue={["THIS_WEEK"]}
                 autoClearSearchValue={false}
-                style={{ width: 250, color: "#000", background: "#009966" }}
+                style={{ width: "80%", display: 'flex', color: "#000", background: "#009966" }}
             >
                 <Option key="TODAY" value="TODAY">Today</Option>
                 <Option key="YESTERDAY" value="YESTERDAY">Yesterday</Option>

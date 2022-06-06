@@ -17,7 +17,7 @@ export const OrgUnitFilter = observer(({ name }) => {
     if (loading) {
         return (
             <Select placeholder={i18n.t('Select District')}
-                style={{ width: 250, color: "#000", background: "#009966" }}
+                style={{ width: "80%", color: "#000", background: "#009966" }}
             >
 
             </Select>
@@ -27,7 +27,7 @@ export const OrgUnitFilter = observer(({ name }) => {
     if (error) {
         return (
             <Select placeholder={i18n.t('Select District')}
-                style={{ width: 250, color: "#000", background: "#009966" }}
+                style={{ width: "80%",  display: 'flex', color: "#000", background: "#009966" }}
             >
             </Select>
         )
@@ -45,7 +45,7 @@ export const OrgUnitFilter = observer(({ name }) => {
             placeholder={i18n.t('Organisation Unit')}
             value={selected}
             onChange={onChange}
-            style={{ width: 250, color: "#000", background: "#009966" }}
+            style={{ width: "80%", display: 'flex', color: "#000", background: "#009966" }}
             filterOption={(input, option) => {
                 return (
                     option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||

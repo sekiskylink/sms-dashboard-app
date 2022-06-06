@@ -7,7 +7,7 @@ import { FieldOptionSet } from './FieldOptionSet'
 import { FieldStatusOptionSet } from './FieldStatusOptionSet'
 import { FieldCaseTypeOptionSet } from './FieldCaseTypeOptionSet'
 import { FieldUserGroup } from './FieldUserGroup'
-import { FieldAge } from './FieldAge'
+import { FieldAgev2 } from './FieldAgev2'
 import { useStore } from '../context/context'
 import { observer } from 'mobx-react-lite'
 import {
@@ -22,11 +22,11 @@ import i18n from '../locales'
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-export const EventDialog = observer(({ message, forUpdate }) => {
+export const EventDialog = observer(({ message, forUpdate, refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
-    const [modalTitle, setModleTitle] = useState("Create Alert Event")
+    const [modalTitle, setModleTitle] = useState("Create Signal Event")
     // const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = async () => {
@@ -34,7 +34,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
         console.log("Fetched Values = ", cValues)
         setCurrentEventValues(cValues)
         if ('district' in cValues) {
-            setModleTitle("Update Alert Event")
+            setModleTitle("Update Signal Event")
         }
         switch (cValues['eventType']) {
             case 'Human':
@@ -65,7 +65,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
         console.log("submited values", values)
         if (typeof values.notifyusers != "undefined" && values.notifyusers.length) {
             const msgPayload = {
-                subject: "Alert from " + message.originator + " on " + message.receiveddate,
+                subject: "Signal from " + message.originator + " on " + message.receiveddate,
                 text: message.text + " [from: " + message.originator + " on: " + message.receiveddate + "]",
                 userGroups: values.notifyusers.map(i => {
                     const y = {};
@@ -109,11 +109,20 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                     }
                     break
                 case 'age':
-                    age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
-                        values[i].age.format("YYYY-MM-DD") : ""
-                    if (age !== "" && age !== undefined) {
-                        dataValues.push({ dataElement: eventConfs[i], value: age })
+                    if (values[i] && Object.keys(values[i]).length > 0) {
+                        if (!!values[i].years){
+                            dataValues.push({ dataElement: eventConfs['years'], value: values[i].years })
+                        }
+                        if (!!values[i].months) {
+                            dataValues.push({ dataElement: eventConfs['months'], value: values[i].months })
+
+                        }
+                        if (!!values[i].days){
+
+                            dataValues.push({ dataElement: eventConfs['days'], value: values[i].days })
+                        }
                     }
+
                     break
                 case 'status':
                     if (values[i] === "unactionable") {
@@ -149,7 +158,11 @@ export const EventDialog = observer(({ message, forUpdate }) => {
             eventPayload['orgUnit'] = eventConfs["nationalOrgUnit"]
         }
         console.log(JSON.stringify(eventPayload));
-        saveEvent(eventPayload);
+        saveEvent(eventPayload).then((value) => {
+            if (value) {
+                refetchFn()
+            }
+        });
         setIsModalVisible(false);
     }
     const [form] = Form.useForm();
@@ -172,7 +185,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
         return current && current > moment().endOf('day');
     }
 
-    const buttonName = forUpdate === 1 ? 'Update Event' : 'Forward Event'
+    const buttonName = forUpdate === 1 ? 'Update Signal' : 'Forward Signal'
     const okTextName = forUpdate === 1 ? 'Update' : 'Save'
     return (
         <>
@@ -184,14 +197,24 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                 onOk={form.submit} onCancel={handleCancel} okText={i18n.t(okTextName)}
                 confirmLoading={false} width="79%">
                 <Space direction="vertical"></Space>
-                <p style={{ textAlign: "left" }}> Message: {message.text}</p>
+                {/* <p style={{ textAlign: "left" }}> From:({message.originator}), Msg:{message.text}</p> */}
+                <Row>
+                    <Col span={4}>
+                        <p style={{ textAlign: "left" }}>From: {message.originator}</p>
+                    </Col>
+                    <Col span={20}>
+                        <p style={{ textAlign: "left" }}>Msg: {message.text} </p>
+                    </Col>
+                </Row>
+
                 <Form form={form} onFinish={handleOk}>
                     <Row>
                         <Col span={13}>
                             <FormItem
-                                {...formItemLayout} label="SMS Status" name="status"
+                                {...formItemLayout} label="Signal Status" name="status"
+                                rules={[{ required: true, message: "Signal status is required" }]}
                                 initialValue={getInitialValue('status')}>
-                                <FieldStatusOptionSet id="UrGEIjjyY0A" placeholder="Status"
+                                <FieldStatusOptionSet id="diU0rgqKDzu" placeholder="Status"
                                     name='status' form={form} />
                             </FormItem>
 
@@ -212,10 +235,11 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                 </FormItem>
                             } */}
                             <FormItem
-                                {...formItemLayout} label="Date Alert Received"
+                                {...formItemLayout} label="Date Signal Received"
                                 name="alertDate" initialValue={alertDate._i.slice(0, 10)}
                                 hidden={true}>
                                 <Input />
+
                             </FormItem>
 
                             <FormItem
@@ -254,8 +278,14 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                                 />
                             </FormItem>
                             {/* Age and Gender go here */}
-                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
-                                value={moment(getInitialValue('age'), "YYYY-MM-DD")}
+                            <FieldAgev2 name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={
+                                    {
+                                        years: getInitialValue('years'),
+                                        months: getInitialValue('months'),
+                                        days: getInitialValue('days')
+                                    }
+                                }
                             />
                             <FormItem
                                 {...formItemLayout} label="Gender" name="gender"
@@ -334,7 +364,7 @@ export const EventDialog = observer(({ message, forUpdate }) => {
                             <FormItem
                                 {...formItemLayout} label="Followup Action" name="followupAction"
                                 initialValue={getInitialValue('followupAction')}>
-                                <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
+                                <FieldOptionSet id="ntjsL4UMoNW" placeholder="Followup Action"
                                     name='followupAction' form={form} />
                             </FormItem>
 

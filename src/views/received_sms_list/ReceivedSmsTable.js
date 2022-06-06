@@ -13,6 +13,7 @@ export const ReceivedSmsTable = ({
     pager,
     selectedIds,
     setSelectedIds,
+    refetchFn
 }) => (
     <SmsTable
         messages={messages}
@@ -54,7 +55,7 @@ export const ReceivedSmsTable = ({
                 {/* DialogForm for Updates goes here*/}
                 <TableCell>
                     {/* <EventDialog message={message} /> */}
-                    <EventModalButton message={message} />
+                    <EventModalButton message={message} refetchFn={refetchFn} />
                 </TableCell>
             </>
         )}
@@ -66,4 +67,5 @@ ReceivedSmsTable.propTypes = {
     pager: PropTypes.PropTypes.object.isRequired,
     selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
     setSelectedIds: PropTypes.func.isRequired,
+    refetchFn: PropTypes.func
 }

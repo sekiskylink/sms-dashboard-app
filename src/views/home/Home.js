@@ -57,12 +57,12 @@ export const Home = observer(() => {
                     </Col>
                 }
                 <Col span={12}>
-                    <AlertsChart title="Total Alerts" />
+                    <AlertsChart title="Total Signals Triaged" />
                 </Col>
             </Row>
             <Row>
                 <Col span={12}>
-                    <PieChart title="SMS Status" dataDimension="nFNdf8wcGNu" />
+                    <PieChart title="Signal Status" dataDimension="K5xlXx9M7my" />
                 </Col>
                 <Col span={12}>
                     <BarGraph title="Action Taken" dataDimension="Y9ahw4POban" />
@@ -70,7 +70,7 @@ export const Home = observer(() => {
             </Row>
             <Row>
                 <Col span={12}>
-                    <BarGraph title="Followup Action" dataDimension="ER1Z7hl3loe" />
+                    <BarGraph title="Followup Action" dataDimension="sapRdA8sojg" />
                 </Col>
                 <Col span={12}>
                     <BarGraph title="Suspected Disease" dataDimension="elGqdsbgahz" />

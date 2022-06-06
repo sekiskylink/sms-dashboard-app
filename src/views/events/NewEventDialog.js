@@ -6,7 +6,7 @@ import { FieldDistrict } from '../../orgUnit/FieldDistrict'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
 import { FieldUserGroup } from '../../events/FieldUserGroup'
-import { FieldAge } from '../../events/FieldAge'
+import { FieldAgev2 } from '../../events/FieldAgev2'
 import { FieldCaseTypeOptionSet } from '../../events/FieldCaseTypeOptionSet'
 import {
     eventToMessage,
@@ -25,7 +25,7 @@ export const NewEventDialog = observer(({ refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
-    const [modalTitle, setModleTitle] = useState("Create Alert Event")
+    const [modalTitle, setModleTitle] = useState("Create Signal Event")
     const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = () => {
@@ -72,10 +72,18 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                     }
                     break
                 case 'age':
-                    age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
-                        values[i].age.format("YYYY-MM-DD") : ""
-                    if (age !== "" && age !== undefined) {
-                        dataValues.push({ dataElement: eventConfs[i], value: age })
+                    if (values[i] && Object.keys(values[i]).length > 0) {
+                        if (!!values[i].years){
+                            dataValues.push({ dataElement: eventConfs['years'], value: values[i].years })
+                        }
+                        if (!!values[i].months) {
+                            dataValues.push({ dataElement: eventConfs['months'], value: values[i].months })
+
+                        }
+                        if (!!values[i].days){
+
+                            dataValues.push({ dataElement: eventConfs['days'], value: values[i].days })
+                        }
                     }
                     break
                 case 'status':
@@ -96,7 +104,7 @@ export const NewEventDialog = observer(({ refetchFn }) => {
         const eventPayload = {
             program: eventConfs["program"],
             orgUnit: values["district"],
-            eventDate: values["alertDate"],
+            eventDate: values["alertDate"].format("YYYY-MM-DD"),
             // status: "COMPLETED",
             // completeDate: completeDate,
             // storedBy: '',
@@ -142,21 +150,29 @@ export const NewEventDialog = observer(({ refetchFn }) => {
     return (
         <>
             <Button type="default" onClick={showModal}>
-                {i18n.t('New Event')}
+                {i18n.t('Register New Signal')}
             </Button>
 
-            <Modal title={modalTitle} visible={isModalVisible}
+            <Modal
+                title={modalTitle}
+                destroyOnClose={true}
+                visible={isModalVisible}
                 onOk={form.submit} onCancel={handleCancel} okText="Save"
                 confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
-                <Form form={form} onFinish={handleOk}>
+                <Form form={form} onFinish={handleOk} preserve={false}>
                     <Row>
                         <Col span={13}>
 
                             <FormItem
                                 {...formItemLayout}
                                 label="Reporter Phone" hidden={false}
-                                name="phone">
+                                name="phone"
+                                rules={[{
+                                    pattern: "^256(3[19]|41|7[0125789])[0-9]{7}$",
+                                    message: "Invalid phone number format"
+                                }]}
+                            >
                                 <Input placeholder="Reporter Phone Number" />
                             </FormItem>
                             <FormItem
@@ -166,9 +182,10 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                                 <TextArea rows={3} />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="SMS Status" name="status"
+                                {...formItemLayout} label="Signal Status" name="status"
+                                rules={[{ required: true, message: "Signal Status is required" }]}
                             >
-                                <FieldStatusOptionSet id="UrGEIjjyY0A" placeholder="Status"
+                                <FieldStatusOptionSet id="diU0rgqKDzu" placeholder="Status"
                                     name='status' form={form} />
                             </FormItem>
                             <FormItem name="status_update_date" hidden={true}
@@ -194,25 +211,27 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                                 </FormItem>
 
                             }
-                            {store.IsGlobalUser &&
+                            {/* {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'
 
                                 >
                                     <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
                                 </FormItem>
-                            }
+                            } */}
                             <FormItem
-                                {...formItemLayout} label="Date of SMS Followup" name="followupDate">
-                                <DatePicker style={{ width: "60%" }}
+                                {...formItemLayout} label="Date of Signal Followup" name="followupDate">
+                                <DatePicker style={{ width: "100%" }}
                                     disabledDate={disabledDate}
                                 />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="Date Alert Received"
-                                name="alertDate"
-                                hidden={true} initialValue={alertDate.format("YYYY-MM-DD")}>
-                                <Input />
+                                {...formItemLayout} label="Date Signal Received"
+                                name="alertDate" rules={[{ required: true, message: "Date Signal Received is required" }]}
+                                >
+                                <DatePicker style={{ width: "100%" }}
+                                    disabledDate={disabledDate} format="YYYY-MM-DD"
+                                />
                             </FormItem>
 
                             <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
@@ -227,14 +246,14 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                             // rules={[{required: true, message: "Date of Oneset required"}]}
                             >
 
-                                <DatePicker style={{ width: "60%" }}
+                                <DatePicker style={{ width: "100%" }}
                                     disabledDate={disabledDate}
                                 />
                             </FormItem>
                             {/* Age and Gender Go Here */}
 
-                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
-                                value={undefined}
+                            <FieldAgev2 name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={""}
                             />
 
                             <FormItem
@@ -284,9 +303,9 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                             </FormItem>
 
                             <FormItem
-                                {...formItemLayout} label="Source of Rumor" name="rumorSource"
+                                {...formItemLayout} label="Source of Signal" name="rumorSource"
                             >
-                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
+                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Signal"
                                     name='rumorSource' form={form} />
                             </FormItem>
 
@@ -300,7 +319,7 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Followup Action" name="followupAction"
                             >
-                                <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
+                                <FieldOptionSet id="ntjsL4UMoNW" placeholder="Followup Action"
                                     name='followupAction' form={form} />
                             </FormItem>
 

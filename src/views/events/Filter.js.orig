@@ -1,0 +1,98 @@
+import React, { useState, useCallback, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+import { PropTypes } from '@dhis2/prop-types'
+import i18n from '@dhis2/d2-i18n'
+import debounce from 'lodash.debounce'
+import { dataTest } from '../../dataTest'
+import {
+    Button,
+    SingleSelectField,
+    SingleSelectOption,
+} from '@dhis2/ui'
+import { useQueryParams } from './useQueryParams'
+import { createSearchString } from '../../utils'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '../../context/context'
+import { eventConfs } from '../../events'
+import styles from './Filter.module.css'
+
+const DistrictFieldSelect = observer(() => {
+    const store = useStore()
+    const history = useHistory()
+    const { pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
+
+    const handleOrgUnitChange = ({ selected }) => {
+        console.log("Selected District is", selected)
+        store.setSearchOrgUnit(selected)
+        history.push({
+            search: createSearchString({
+                orgUnit: selected,
+                pageSize,
+                page: 1,
+            }),
+        })
+    }
+
+    const districtsOptions = store.districts.map((d) => (
+        <SingleSelectOption key={d.id} label={d.displayName} value={d.id}>{d.displayName}</SingleSelectOption>))
+    // console.log("VVVVVVVVVV", districtsOptions)
+    return (
+        <SingleSelectField
+            label={i18n.t('Filter by District')}
+            inputWidth="200px"
+            onChange={handleOrgUnitChange}
+            // selected='NREoMszwQZW'
+            dataTest="orgunit-filter"
+            placeholder={"Select District"}
+        >
+            {store.IsGlobalUser ?
+                <SingleSelectOption key={eventConfs.nationalOrgUnit}
+                    value={eventConfs.nationalOrgUnit} label={"National"}>National
+                </SingleSelectOption> :
+                <SingleSelectOption key={store.defaultOrgUnit}
+                    value={store.defaultOrgUnit} label={"My OrganisationUnit"}>My OrganisationUnit
+                </SingleSelectOption>
+            }
+<<<<<<< HEAD
+
+=======
+>>>>>>> 1cc7584111f099969524a9b90b2a78e317b3924c
+            {store.IsGlobalUser &&
+                districtsOptions
+            }
+
+        </SingleSelectField>
+    )
+
+})
+
+const Filter = observer(() => {
+    const store = useStore()
+    const { pageSize, orgUnit } = useQueryParams(store.searchOrgUnit)
+    const history = useHistory()
+
+    const handleReset = () => {
+        history.push({
+            search: createSearchString({
+                pageSize,
+                page: 1,
+            }),
+        })
+    }
+
+    return (
+        <div
+            data-test={dataTest('views-events-filter')}
+            className={styles.container}
+        >
+            <div className={styles.inputStrip}>
+                <DistrictFieldSelect />
+                <Button large onClick={handleReset} dataTest="reset-filter-btn">
+                    {i18n.t('Reset filter')}
+                </Button>
+            </div>
+        </div>
+    )
+})
+
+export { Filter }

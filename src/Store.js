@@ -16,11 +16,14 @@ class Store {
     filteringOrgUnit = ''
     caseTypeHumanSelected = false
     caseTypeAnimalSelected = false
-    /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 
+    daysDisabled = false
+    monthsDisabled = false
+    yearsDisabled = false
+    /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team',
      * 'EOC Core Staff', 'System Admin', 'National IDSR Team'
      * */
     allowedUserGroups = [
-        'PiU1BMFQrhR', 'w4QeiRn7fzy', 'tljMIEjx4gD',
+        'PiU1BMFQrhR', 'enC5vRupltp', 'tljMIEjx4gD',
         'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK'
     ];
 
@@ -41,6 +44,9 @@ class Store {
     setCaseTypeAnimalSelected = (val) => (this.caseTypeAnimalSelected = val)
     setFilteringPeriod = (val) => (this.filteringPeriod = val)
     setFilteringOrgUnit = (val) => (this.filteringOrgUnit = val)
+    setDaysDisabled = (val) => (this.daysDisabled = val)
+    setMonthsDisabled = (val) => (this.monthsDisabled = val)
+    setYearsDisabled = (val) => (this.yearsDisabled = val)
 
     fetchDefaults = async () => {
         this.setLoading(true)
@@ -166,31 +172,34 @@ class Store {
         const dateString = ""
         var filterString = ""
         const dateToday = moment().format('YYYY-MM-DD')
+        const dateTomorrow = moment().add(1, 'days').format('YYYY-MM-DD')
+        const thisWeekStart = moment().startOf('week').format('YYYY-MM-DD')
+        const thisMonthStart = moment().subtract(0, 'month').startOf('month').format('YYYY-MM-DD')
+        const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
+        // use next day for THIS_WEEK
         switch (this.filteringPeriod) {
             case "TODAY":
                 filterString = `filter=receiveddate:ge:${dateToday}`
                 break
             case "YESTERDAY":
                 const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${yesterday}&filter=receiveddate:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${yesterday}&filter=receiveddate:lt:${dateToday}`
                 break
             case "LAST_WEEK":
                 const lastWeekStart = moment().subtract(7, 'days').startOf('week').format('YYYY-MM-DD')
-                const lastWeekEnd = moment().subtract(7, 'days').endOf('week').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastWeekStart}&filter=receiveddate:le:${lastWeekEnd}`
+                filterString = `filter=receiveddate:ge:${lastWeekStart}&filter=receiveddate:lt:${thisWeekStart}`
                 break
             case "THIS_WEEK":
-                const weekStart = moment().startOf('week').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${weekStart}&filter=receiveddate:le:${dateToday}`
+                // filterString = `filter=receiveddate:ge:${weekStart}&filter=receiveddate:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${thisWeekStart}`
                 break
             case "LAST_MONTH":
                 const lastMonthStart = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
-                const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastMonthStart}&filter=receiveddate:le:${lastMonthEnd}`
+                // const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+                filterString = `filter=receiveddate:ge:${lastMonthStart}&filter=receiveddate:lt:${thisMonthStart}`
                 break
             case "THIS_MONTH":
-                const thisMonthStart = moment().subtract(0, 'month').startOf('month').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${thisMonthStart}&filter=receiveddate:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${thisMonthStart}&filter=receiveddate:lt:${dateTomorrow}`
                 break
             case "LAST_3_MONTHS":
                 const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
@@ -202,12 +211,10 @@ class Store {
                 break
             case "LAST_YEAR":
                 const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
-                const lastYearEnd = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastYearStart}&filter=lastUpdate:le:${lastYearEnd}`
+                filterString = `filter=receiveddate:ge:${lastYearStart}&filter=lastUpdate:lt:${thisYearStart}`
                 break
             case "THIS_YEAR":
-                const thisYearStart = moment().subtract(0, 'year').startOf('year').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${thisYearStart}&filter=receiveddate:le:${dateToday}`
+                filterString = `filter=receiveddate:ge:${thisYearStart}&filter=receiveddate:lt:${dateTomorrow}`
                 break
             default:
                 filterString = `filter=receiveddate:ge:${dateToday}`

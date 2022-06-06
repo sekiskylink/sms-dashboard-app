@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2021-05-06T18:00:28.403Z\n"
-"PO-Revision-Date: 2021-05-06T18:00:28.403Z\n"
+"POT-Creation-Date: 2022-04-28T10:29:02.786Z\n"
+"PO-Revision-Date: 2022-04-28T10:29:02.786Z\n"
 
 msgid "Are you sure you want to cancel? Unsaved changes will be lost"
 msgstr ""
@@ -61,22 +61,22 @@ msgstr ""
 msgid "User group"
 msgstr ""
 
-msgid "Update Event"
-msgstr ""
-
 msgid "Filter by District"
 msgstr ""
 
 msgid "Reset filter"
 msgstr ""
 
-msgid "New Event"
+msgid "Update Signal"
 msgstr ""
 
-msgid "Alerts"
+msgid "Register New Signal"
 msgstr ""
 
-msgid "Something went wrong whilst loading received Alerts"
+msgid "Signals"
+msgstr ""
+
+msgid "Something went wrong whilst loading received Signals"
 msgstr ""
 
 msgid "Message"
@@ -103,6 +103,9 @@ msgstr ""
 msgid "View quick statistics and also make custom filters for visualisations"
 msgstr ""
 
+msgid "Select District"
+msgstr ""
+
 msgid "Organisation Unit"
 msgstr ""
 
@@ -115,7 +118,7 @@ msgstr ""
 msgid "Filter by status"
 msgstr ""
 
-msgid "Received SMS"
+msgid "Received Messages"
 msgstr ""
 
 msgid "Something went wrong whilst loading received SMSes"

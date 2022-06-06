@@ -10,15 +10,22 @@ export const eventConfs = {
     phone: "fb9Fs09UNN8",
     rumorSource: "nvYHp4qr35Q",
     actionTaken: "Y9ahw4POban",
-    followupAction: "ER1Z7hl3loe",
-    status: "nFNdf8wcGNu",
-    text: "Yb5K4WNhFcq",
-    status_update_date: "Pwr85z28pXn",
-    followupDate: "AfnfCVQuqgw",
-    comment: "MYIDtPnvepJ",
+    followupAction: "sapRdA8sojg",
+    status: "K5xlXx9M7my",
+    // text: "mrCBYVkif55",
+    text: "thsZG5TJDBV",
+    status_update_date: "mat5CiQpcYf",
+    followupDate: "dbXuMlmikiE",
+    // comment: "JnBbIu4CURJ",
+    comment: "mxKyHOIv1nH",
     suspectedDisease: "elGqdsbgahz",
     hasSigns: "qZbnrWP7sAc",
-    age: "p8lmShXZbu0",
+    // years: "g3ZZR61ylJz",
+    // months: "FgbtZPiDeYO",
+    // days: "InrjC9TO8z1",
+    years: "KOYLOpD1LVN",
+    months: "u2aBDG7SbUa",
+    days: "pi1I6gqsODF",
     gender: "t0fsTEkUl2d",
 }
 
@@ -30,7 +37,7 @@ export const fetchEvent = async (eventID) => {
     const api = d2.Api.getApi()
     const url = "events/" + eventID
     try {
-        const { orgUnit, dataValues } = await api.get(
+        const { orgUnit, dataValues, eventDate } = await api.get(
             url, { fields: "orgUnit,dataValues[dataElement,value]" })
         var cValues = {}
         const eValues = dataValues.map(i => {
@@ -43,6 +50,7 @@ export const fetchEvent = async (eventID) => {
         })
         cValues['district'] = orgUnit
         cValues['notifyusers'] = []
+        cValues['alertDate'] = eventDate
         // console.log("Event Values", cValues)
         return cValues
     } catch {
@@ -53,7 +61,7 @@ export const fetchEvent = async (eventID) => {
 }
 
 export const eventToMessage = (e) => {
-    const { orgUnit, dataValues, created, event } = e
+    const { orgUnit, dataValues, event, eventDate } = e
     var cValues = {}
     const eValues = dataValues.map(i => {
         var y = {}
@@ -65,7 +73,7 @@ export const eventToMessage = (e) => {
     })
     cValues['district'] = orgUnit
     cValues['notifyusers'] = []
-    cValues['receiveddate'] = created
+    cValues['receiveddate'] = eventDate
     cValues['id'] = event
     return cValues
 }

@@ -1,7 +1,7 @@
 const config = {
     type: 'app',
-    name: 'sms-dashboard',
-    title: 'SMS Dashboard',
+    name: 'sms-management',
+    title: 'SMS Management',
     description: 'Manage all received surveillance signals',
     coreApp: false,
 

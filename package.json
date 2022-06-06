@@ -1,9 +1,9 @@
 {
-    "name": "sms-configuration-app",
+    "name": "sms-management-app",
     "version": "1.0.0",
     "description": "",
     "license": "BSD-3-Clause",
-    "author": "Jan-Gerke Salomon <jan-gerke@dhis2.org>",
+    "author": "Sekiwere Samuel <ssekiwere@hispuganda.org>",
     "private": true,
     "scripts": {
         "build": "d2-app-scripts build",
@@ -38,6 +38,7 @@
         "@dhis2/prop-types": "^2.0.0",
         "@dhis2/ui": "^5.7.8",
         "@dhis2/ui-icons": "^6.6.2",
+        "@dhis2/ui-widgets": "^6.9.0",
         "antd": "^4.14.1",
         "classnames": "^2.2.6",
         "d2": "^31.10.0",

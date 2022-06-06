@@ -16,7 +16,7 @@ import { observer } from "mobx-react-lite"
 import { useStore } from '../../context/context'
 
 import i18n from '../../locales'
-import { FieldAge } from '../../events/FieldAge';
+import { FieldAgev2 } from '../../events/FieldAgev2';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
@@ -31,9 +31,10 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
     const showModal = () => {
         console.log("MESSAGE", message)
         const cValues = eventToMessage(event)
+        // console.log("eventFromMessage", cValues)
         setCurrentEventValues(cValues)
         if ('district' in cValues) {
-            setModleTitle("Update Alert Event")
+            setModleTitle("Update Signal Event")
         }
         switch (cValues['eventType']) {
             case 'Human':
@@ -95,10 +96,23 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                     }
                     break
                 case 'age':
-                    age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
-                        values[i].age.format("YYYY-MM-DD") : ""
-                    if (age !== "" && age !== undefined) {
-                        dataValues.push({ dataElement: eventConfs[i], value: age })
+                    // age = values[i] && Object.keys(values[i]).length > 0 && values[i].age ?
+                    //     values[i].age.format("YYYY-MM-DD") : ""
+                    // if (age !== "" && age !== undefined) {
+                    //     dataValues.push({ dataElement: eventConfs[i], value: age })
+                    // }
+                    if (values[i] && Object.keys(values[i]).length > 0) {
+                        if (!!values[i].years){
+                            dataValues.push({ dataElement: eventConfs['years'], value: values[i].years })
+                        }
+                        if (!!values[i].months) {
+                            dataValues.push({ dataElement: eventConfs['months'], value: values[i].months })
+
+                        }
+                        if (!!values[i].days){
+
+                            dataValues.push({ dataElement: eventConfs['days'], value: values[i].days })
+                        }
                     }
                     break
                 case 'status':
@@ -145,8 +159,9 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
     }
     const [form] = Form.useForm();
 
-    const alertDate = moment(message.receiveddate, moment.HTML5_FMT.DATE);
-    // console.log("Alert Date=>", alertDate, "Received Date", message.receiveddate)
+    // const alertDate = moment(message.receiveddate, moment.HTML5_FMT.DATE);
+    const alertDate = moment(message.receiveddate);
+    console.log("Alert Date=>", alertDate, "Received Date", message.receiveddate)
 
     const formItemLayout = {
         labelCol: {
@@ -172,21 +187,31 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
     return (
         <>
             <Button type="default" onClick={showModal}>
-                {i18n.t('Update Event')}
+                {i18n.t('Update Signal')}
             </Button>
 
             <Modal title={modalTitle} visible={isModalVisible}
                 onOk={form.submit} onCancel={handleCancel} okText="Update"
                 confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
-                <p style={{ textAlign: "left" }}> Message: {message.text}</p>
-                <Form form={form} onFinish={handleOk} >
+                {/* <p style={{ textAlign: "left" }}> Msg: {message.text}</p> */}
+                <Row>
+                    <Col span={4}>
+                        <p style={{ textAlign: "left" }}>From: {message.phone}</p>
+                    </Col>
+                    <Col span={20}>
+                        <p style={{ textAlign: "left" }}>Msg: {message.text} </p>
+                    </Col>
+
+                </Row>
+                <Form form={form} onFinish={handleOk} initialValues={{alertDate: alertDate}}>
                     <Row>
                         <Col span={13}>
                             <FormItem
-                                {...formItemLayout} label="SMS Status" name="status"
-                                initialValue={getInitialValue('status')}>
-                                <FieldStatusOptionSet id="UrGEIjjyY0A" placeholder="Status"
+                                {...formItemLayout} label="Signal Status" name="status"
+                                initialValue={getInitialValue('status')}
+                                rules={[{ required: true, message: "Signal Status required" }]}>
+                                <FieldStatusOptionSet id="diU0rgqKDzu" placeholder="Status"
                                     name='status' form={form} />
                             </FormItem>
                             <FormItem name="status_update_date" hidden={true}
@@ -212,7 +237,7 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             } */}
                             <FormItem
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
-                                <DatePicker style={{ width: "60%" }}
+                                <DatePicker style={{ width: "100%" }}
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
                                     defaultValue={
                                         moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
@@ -223,10 +248,10 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                                 />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="Date Alert Received"
-                                name="alertDate" initialValue={alertDate._i.slice(0, 10)}
-                                hidden={true}>
-                                <Input />
+                                {...formItemLayout} label="Date Signal Received"
+                                name="alertDate"
+                                hidden={false}>
+                                <DatePicker disabledDate={disabledDate}/>
                             </FormItem>
 
                             <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
@@ -238,10 +263,9 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
 
                             <FormItem
                                 {...formItemLayout} label="Date of Onset" name="dateOfOnset"
-                            // rules={[{required: true, message: "Date of Oneset required"}]}
                             >
 
-                                <DatePicker style={{ width: "60%" }}
+                                <DatePicker style={{ width: "100%" }}
                                     placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
                                     defaultValue={
                                         moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") &&
@@ -252,8 +276,14 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                                 />
                             </FormItem>
                             {/* Age and Gender Go Here */}
-                            <FieldAge name="age" visible={store.caseTypeHumanSelected} form={form}
-                                value={moment(getInitialValue('age'), "YYYY-MM-DD")}
+                            <FieldAgev2 name="age" visible={store.caseTypeHumanSelected} form={form}
+                                value={
+                                    {
+                                        years: getInitialValue('years'),
+                                        months: getInitialValue('months'),
+                                        days: getInitialValue('days')
+                                    }
+                                }
                             />
 
                             <FormItem
@@ -305,9 +335,9 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                                     name='suspectedDisease' form={form} />
                             </FormItem>
                             <FormItem
-                                {...formItemLayout} label="Source of Rumor" name="rumorSource"
+                                {...formItemLayout} label="Source of Signal" name="rumorSource"
                                 initialValue={getInitialValue('rumorSource')}>
-                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
+                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Signal"
                                     name='rumorSource' form={form} />
                             </FormItem>
                             <FormItem
@@ -327,7 +357,7 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Followup Action" name="followupAction"
                                 initialValue={getInitialValue('followupAction')}>
-                                <FieldOptionSet id="OrBJ2CPJ94x" placeholder="Followup Action"
+                                <FieldOptionSet id="ntjsL4UMoNW" placeholder="Followup Action"
                                     name='followupAction' form={form} />
                             </FormItem>
 

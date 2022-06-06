@@ -17,7 +17,7 @@ import {
 import styles from './ReceivedEventsList.module.css'
 import { NewEventDialog } from './NewEventDialog'
 
-export const RECEIVED_ALERTS_LABEL = i18n.t('Alerts')
+export const RECEIVED_ALERTS_LABEL = i18n.t('Signals')
 export const RECEIVED_ALERTS_PATH = '/alerts'
 
 const parseParams = ({ page, pageSize, orgUnit }) => {
@@ -29,6 +29,7 @@ const parseParams = ({ page, pageSize, orgUnit }) => {
             'event',
             'orgUnit',
             'created',
+            'eventDate',
             'dataValues[lastUpdated,dataElement,value]'
         ],
         order: 'created:desc',
@@ -71,7 +72,7 @@ export const ReceivedEventsList = observer(() => {
 
 
     if (error) {
-        const msg = i18n.t('Something went wrong whilst loading received Alerts')
+        const msg = i18n.t('Something went wrong whilst loading received Signals')
 
         return (
             <>
