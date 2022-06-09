@@ -211,6 +211,25 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                                 </FormItem>
 
                             }
+                            <FormItem
+                                {...formItemLayout} label="Triage" name="triage"
+                                style={!store.caseTypeHumanSelected}>
+                                <FieldOptionSet id="aqXCq1Vb4yE" placeholder="Triage"
+                                    name='triage' form={form} />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout} label="Is The Incident on the EBS List" name="onebslist"
+                                style={!store.caseTypeHumanSelected}>
+                                <FieldOptionSet id="aqXCq1Vb4yE" placeholder="Is The Incident on the EBS List"
+                                    name='onebslist' form={form} />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout} label="Is The Signal Verified" name="signalverified"
+                                style={!store.caseTypeHumanSelected}>
+                                <FieldOptionSet id="aqXCq1Vb4yE" placeholder="Is The Signal Verified"
+                                    name='signalverified' form={form} />
+                            </FormItem>
+
                             {/* {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'

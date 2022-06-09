@@ -1,7 +1,7 @@
 const config = {
     type: 'app',
-    name: 'sms-management',
-    title: 'SMS Management',
+    name: 'EBS',
+    title: 'EBS',
     description: 'Manage all received surveillance signals',
     coreApp: false,
 

@@ -27,6 +27,13 @@ export const eventConfs = {
     months: "u2aBDG7SbUa",
     days: "pi1I6gqsODF",
     gender: "t0fsTEkUl2d",
+    triage: "XOAHMbk7kPI",
+    onebslist: "UGq3W5DIsiT",
+    signalverified: "Z6COmEodXQt",
+    nameOfVerifyingOfficer: "FbxwAMpxwaM",
+    verification_date: "nzziTwH5677",
+    contactOfVerifyingOfficer: "ac6Qmg5KEGY",
+    riskAssessmentLevel: "x84ZTtD0Z8u"
 }
 
 /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 'EOC Core Staff', 'System Admin', 'National IDSR Team'*/
