@@ -31,17 +31,20 @@ const parseParams = ({ page, pageSize, phoneNumber, status }) => {
     const filters = []
     if (phoneNumber) {
         filters.push(`text:ilike:${phoneNumber}`)
-        filters.push(`text:ilike:Alert`)
         filters.push(`originator:ilike:${phoneNumber}`)
     }
     if (status && status !== 'ALL') {
         filters.push(`smsstatus:eq:${status}`)
-        filters.push(`text:ilike:Alert`)
     }
 
     if (filters.length > 0) {
         params.filter = filters
         params.rootJunction = 'OR'
+    } else {
+        filters.push(`text:ilike:Alert`)
+        params.filter = filters
+        params.rootJunction = 'OR'
+
     }
 
     return params

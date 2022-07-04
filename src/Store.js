@@ -273,7 +273,7 @@ class Store {
                 filterString = `startDate=${thisYearStart}&endDate=${dateToday}`
                 break
             default:
-                filterString = `startDate=${dateToday}&filter=text:ilike:Alert`
+                filterString = `startDate=${dateToday}`
 
         }
         const data = await api.get(`events?program=iaN1DovM5em&orgUnit=${this.filteringOrgUnit}&${filterString}&totalPages=true&fields=event&pageSize=1&ouMode=DESCENDANTS`)
