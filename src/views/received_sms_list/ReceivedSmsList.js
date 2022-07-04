@@ -49,6 +49,9 @@ const query = {
     inboundSms: {
         resource: 'sms/inbound',
         params: parseParams,
+        filter:{
+            text: 'ilike:Alert'
+        }
     },
 }
 

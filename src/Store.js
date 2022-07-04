@@ -179,31 +179,31 @@ class Store {
         // use next day for THIS_WEEK
         switch (this.filteringPeriod) {
             case "TODAY":
-                filterString = `filter=receiveddate:ge:${dateToday}`
+                filterString = `filter=receiveddate:ge:${dateToday}&filter=text:ilike:Alert`
                 break
             case "YESTERDAY":
                 const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${yesterday}&filter=receiveddate:lt:${dateToday}`
+                filterString = `filter=receiveddate:ge:${yesterday}&filter=receiveddate:lt:${dateToday}&filter=text:ilike:Alert`
                 break
             case "LAST_WEEK":
                 const lastWeekStart = moment().subtract(7, 'days').startOf('week').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastWeekStart}&filter=receiveddate:lt:${thisWeekStart}`
+                filterString = `filter=receiveddate:ge:${lastWeekStart}&filter=receiveddate:lt:${thisWeekStart}&filter=text:ilike:Alert`
                 break
             case "THIS_WEEK":
-                // filterString = `filter=receiveddate:ge:${weekStart}&filter=receiveddate:le:${dateToday}`
-                filterString = `filter=receiveddate:ge:${thisWeekStart}`
+                // filterString = `filter=receiveddate:ge:${weekStart}&filter=receiveddate:le:${dateToday}&filter=text:ilike:Alert`
+                filterString = `filter=receiveddate:ge:${thisWeekStart}&filter=text:ilike:Alert`
                 break
             case "LAST_MONTH":
                 const lastMonthStart = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
                 // const lastMonthEnd = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastMonthStart}&filter=receiveddate:lt:${thisMonthStart}`
+                filterString = `filter=receiveddate:ge:${lastMonthStart}&filter=receiveddate:lt:${thisMonthStart}&filter=text:ilike:Alert`
                 break
             case "THIS_MONTH":
-                filterString = `filter=receiveddate:ge:${thisMonthStart}&filter=receiveddate:lt:${dateTomorrow}`
+                filterString = `filter=receiveddate:ge:${thisMonthStart}&filter=receiveddate:lt:${dateTomorrow}&filter=text:ilike:Alert`
                 break
             case "LAST_3_MONTHS":
                 const last3MonthStart = moment().subtract(3, 'month').startOf('month').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${last3MonthStart}`
+                filterString = `filter=receiveddate:ge:${last3MonthStart}&filter=text:ilike:Alert`
                 break
             case "LAST_6_MONTHS":
                 const last6MonthStart = moment().subtract(6, 'month').startOf('month').format('YYYY-MM-DD')
@@ -211,13 +211,13 @@ class Store {
                 break
             case "LAST_YEAR":
                 const lastYearStart = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD')
-                filterString = `filter=receiveddate:ge:${lastYearStart}&filter=lastUpdate:lt:${thisYearStart}`
+                filterString = `filter=receiveddate:ge:${lastYearStart}&filter=lastUpdate:lt:${thisYearStart}&filter=text:ilike:Alert`
                 break
             case "THIS_YEAR":
-                filterString = `filter=receiveddate:ge:${thisYearStart}&filter=receiveddate:lt:${dateTomorrow}`
+                filterString = `filter=receiveddate:ge:${thisYearStart}&filter=receiveddate:lt:${dateTomorrow}&filter=text:ilike:Alert`
                 break
             default:
-                filterString = `filter=receiveddate:ge:${dateToday}`
+                filterString = `filter=receiveddate:ge:${dateToday}&filter=text:ilike:Alert`
 
         }
         const data = await api.get(`sms/inbound?${filterString}&pageSize=1`)
@@ -273,7 +273,7 @@ class Store {
                 filterString = `startDate=${thisYearStart}&endDate=${dateToday}`
                 break
             default:
-                filterString = `startDate=${dateToday}`
+                filterString = `startDate=${dateToday}&filter=text:ilike:Alert`
 
         }
         const data = await api.get(`events?program=iaN1DovM5em&orgUnit=${this.filteringOrgUnit}&${filterString}&totalPages=true&fields=event&pageSize=1&ouMode=DESCENDANTS`)
