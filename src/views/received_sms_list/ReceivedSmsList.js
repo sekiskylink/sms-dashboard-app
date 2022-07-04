@@ -31,10 +31,12 @@ const parseParams = ({ page, pageSize, phoneNumber, status }) => {
     const filters = []
     if (phoneNumber) {
         filters.push(`text:ilike:${phoneNumber}`)
+        filters.push(`text:ilike:Alert`)
         filters.push(`originator:ilike:${phoneNumber}`)
     }
     if (status && status !== 'ALL') {
         filters.push(`smsstatus:eq:${status}`)
+        filters.push(`text:ilike:Alert`)
     }
 
     if (filters.length > 0) {
@@ -48,10 +50,7 @@ const parseParams = ({ page, pageSize, phoneNumber, status }) => {
 const query = {
     inboundSms: {
         resource: 'sms/inbound',
-        params: parseParams,
-        filter:{
-            text: 'ilike:Alert'
-        }
+        params: parseParams
     },
 }
 
