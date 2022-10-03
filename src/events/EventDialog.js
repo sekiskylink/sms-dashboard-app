@@ -1,7 +1,18 @@
 // import { PropTypes } from '@dhis2/prop-types'
 import React, { useState, useEffect } from 'react'
 import moment from 'moment';
-import { Modal, Form, Button, Input, DatePicker, Space, Row, Col } from 'antd'
+import { 
+    Modal, 
+    Form, 
+    Button, 
+    Input, 
+    DatePicker, 
+    TimePicker,
+    Space, 
+    Row, 
+    Col,
+    Tabs
+} from 'antd'
 import { FieldDistrict } from '../orgUnit/FieldDistrict'
 import { FieldOptionSet } from './FieldOptionSet'
 import { FieldStatusOptionSet } from './FieldStatusOptionSet'
@@ -21,12 +32,14 @@ import i18n from '../locales'
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
+const format = 'HH:mm';
 
 export const EventDialog = observer(({ message, forUpdate, refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Signal Event")
+    const [IsSignalDetailsTabVisible, setIsSignalDetailsTabVisible] = useState(true)
     // const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = async () => {
@@ -184,6 +197,9 @@ export const EventDialog = observer(({ message, forUpdate, refetchFn }) => {
         // Can not select days before today and today
         return current && current > moment().endOf('day');
     }
+    const tabChange = (key) => {
+        console.log("current tab is ", key);
+    }
 
     const buttonName = forUpdate === 1 ? 'Update Signal' : 'Forward Signal'
     const okTextName = forUpdate === 1 ? 'Update' : 'Save'
@@ -196,189 +212,270 @@ export const EventDialog = observer(({ message, forUpdate, refetchFn }) => {
             <Modal title={modalTitle} visible={isModalVisible}
                 onOk={form.submit} onCancel={handleCancel} okText={i18n.t(okTextName)}
                 confirmLoading={false} width="79%">
-                <Space direction="vertical"></Space>
-                {/* <p style={{ textAlign: "left" }}> From:({message.originator}), Msg:{message.text}</p> */}
-                <Row>
-                    <Col span={4}>
-                        <p style={{ textAlign: "left" }}>From: {message.originator}</p>
-                    </Col>
-                    <Col span={20}>
-                        <p style={{ textAlign: "left" }}>Msg: {message.text} </p>
-                    </Col>
-                </Row>
-
-                <Form form={form} onFinish={handleOk}>
+                
+                    <Space direction="vertical"></Space>
+                    {/* <p style={{ textAlign: "left" }}> From:({message.originator}), Msg:{message.text}</p> */}
                     <Row>
-                        <Col span={13}>
-                            <FormItem
-                                {...formItemLayout} label="Signal Status" name="status"
-                                rules={[{ required: true, message: "Signal status is required" }]}
-                                initialValue={getInitialValue('status')}>
-                                <FieldStatusOptionSet id="diU0rgqKDzu" placeholder="Status"
-                                    name='status' form={form} />
-                            </FormItem>
-
-                            {store.IsGlobalUser &&
-                                <FormItem
-                                    {...formItemLayout} label="District" name="district"
-                                    rules={[{ required: true, message: "District is required" }]}
-                                    initialValue={getInitialValue('district')}>
-                                    <FieldDistrict name="district" form={form} />
-                                </FormItem>
-                            }
-                            {/* {store.IsGlobalUser &&
-                                <FormItem
-                                    {...formItemLayout} label='Notify Users' name='notifyusers'
-                                    initialValue={getInitialValue('notifyusers')}
-                                >
-                                    <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
-                                </FormItem>
-                            } */}
-                            <FormItem
-                                {...formItemLayout} label="Date Signal Received"
-                                name="alertDate" initialValue={alertDate._i.slice(0, 10)}
-                                hidden={true}>
-                                <Input />
-
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Date of SMS Followup" name="followupDate">
-                                <DatePicker style={{ width: "60%" }}
-                                    placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
-                                    defaultValue={
-                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
-                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
-                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
-                                    }
-                                    disabledDate={disabledDate}
-                                />
-                            </FormItem>
-
-                            <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
-                                // rules={[{required: true, message: "Case Type is required"}]}
-                                initialValue={getInitialValue('eventType')}
-                            >
-                                <FieldCaseTypeOptionSet id="stZ0w17GD28" placeholder="Case/Event Type"
-                                    form={form} name="eventType" />
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Date of Onset" name="dateOfOnset"
-                            // rules={[{required: true, message: "Date of Oneset required"}]}
-                            >
-
-                                <DatePicker style={{ width: "60%" }}
-                                    placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
-                                    defaultValue={
-                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
-                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
-                                    }
-                                    disabledDate={disabledDate}
-                                />
-                            </FormItem>
-                            {/* Age and Gender go here */}
-                            <FieldAgev2 name="age" visible={store.caseTypeHumanSelected} form={form}
-                                value={
-                                    {
-                                        years: getInitialValue('years'),
-                                        months: getInitialValue('months'),
-                                        days: getInitialValue('days')
-                                    }
-                                }
-                            />
-                            <FormItem
-                                {...formItemLayout} label="Gender" name="gender"
-                                initialValue={getInitialValue('gender')}
-                                style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
-                                <FieldOptionSet id="WNqjeSlrS3r" placeholder="Gender"
-                                    name='gender' form={form} />
-                            </FormItem>
-
-
+                        <Col span={4}>
+                            <p style={{ textAlign: "left" }}>From: {message.originator}</p>
                         </Col>
-                        <Col span={11}>
-                            <FormItem hidden={true} name="event" initialValue={message.id}>
-                                <Input />
-                            </FormItem>
-
-                            <FormItem hidden={true} name="text" initialValue={message.text}>
-                                <Input />
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Location" name="location"
-                                initialValue={getInitialValue('location')}>
-                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Name of Submitter" name="nameOfSubmitter"
-                                initialValue={getInitialValue('nameOfSubmitter')}>
-                                <Input placeholder="Name of Submitter" />
-                            </FormItem>
-
-
-                            <FormItem
-                                {...formItemLayout}
-                                label="Phone Number of Submitter" hidden={true}
-                                name="phone" initialValue={message.originator}>
-                                <Input placeholder="Phone Number of the Submitter" />
-                            </FormItem>
-
-                            <FormItem name="status_update_date" hidden={true}
-                                initialValue={getInitialValue('status_date_update')}
-                            >
-                                <Input />
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Patient has Signs" name="hasSigns"
-                                initialValue={getInitialValue('hasSigns')}
-                                style={
-                                    (store.caseTypeAnimalSelected || store.caseTypeHumanSelected) ?
-                                        { hidden: false } : { display: 'none' }}>
-                                <FieldOptionSet id="L6eMZDJkCwX" placeholder="Patient has Signs"
-                                    name='hasSigns' form={form} />
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Suspected Disease" name="suspectedDisease"
-                                initialValue={getInitialValue('suspectedDisease')}
-                                style={
-                                    (store.caseTypeHumanSelected || store.caseTypeAnimalSelected) ? { hidden: false } : { display: 'none' }}>
-                                <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
-                                    name='suspectedDisease' form={form} />
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Source of Rumor" name="rumorSource"
-                                initialValue={getInitialValue('rumorSource')}>
-                                <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
-                                    name='rumorSource' form={form} />
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout} label="Action Taken" name="actionTaken"
-                                initialValue={getInitialValue('actionTaken')}>
-                                <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
-                                    name='actionTaken' form={form} />
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout} label="Followup Action" name="followupAction"
-                                initialValue={getInitialValue('followupAction')}>
-                                <FieldOptionSet id="ntjsL4UMoNW" placeholder="Followup Action"
-                                    name='followupAction' form={form} />
-                            </FormItem>
-
-
-
-                            <FormItem
-                                {...formItemLayout}
-                                label="Comments"
-                                name="comment" initialValue={getInitialValue('comment')}>
-                                <TextArea rows={2} />
-                            </FormItem>
+                        <Col span={20}>
+                            <p style={{ textAlign: "left" }}>Msg: {message.text} </p>
                         </Col>
                     </Row>
-                </Form>
+
+                    <Form form={form} onFinish={handleOk}>
+                    <Tabs onChange={tabChange} type="card">
+                    <Tabs.TabPane tab="Signal Details" key="signalDetails">
+                        <Row>
+                            <Col span={13}>
+                                <FormItem
+                                    {...formItemLayout} label="Signal Status" name="status"
+                                    rules={[{ required: true, message: "Signal status is required" }]}
+                                    initialValue={getInitialValue('status')}>
+                                    <FieldStatusOptionSet id="diU0rgqKDzu" placeholder="Status"
+                                        name='status' form={form} />
+                                </FormItem>
+
+                                {store.IsGlobalUser &&
+                                    <FormItem
+                                        {...formItemLayout} label="District" name="district"
+                                        rules={[{ required: true, message: "District is required" }]}
+                                        initialValue={getInitialValue('district')}>
+                                        <FieldDistrict name="district" form={form} />
+                                    </FormItem>
+                                }
+                                {/* {store.IsGlobalUser &&
+                                    <FormItem
+                                        {...formItemLayout} label='Notify Users' name='notifyusers'
+                                        initialValue={getInitialValue('notifyusers')}
+                                    >
+                                        <FieldUserGroup value={selectedGroups} name='notifyusers' form={form} />
+                                    </FormItem>
+                                } */}
+                                <FormItem
+                                    {...formItemLayout} label="Date Signal Received"
+                                    name="alertDate" initialValue={alertDate._i.slice(0, 10)}
+                                    hidden={true}>
+                                    <Input />
+
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout} label="Date of SMS Followup" name="followupDate">
+                                    <DatePicker style={{ width: "60%" }}
+                                        placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
+                                        defaultValue={
+                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
+                                                moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                                                moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
+                                        }
+                                        disabledDate={disabledDate}
+                                    />
+                                </FormItem>
+
+                                <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
+                                    // rules={[{required: true, message: "Case Type is required"}]}
+                                    initialValue={getInitialValue('eventType')}
+                                >
+                                    <FieldCaseTypeOptionSet id="stZ0w17GD28" placeholder="Case/Event Type"
+                                        form={form} name="eventType" />
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout} label="Date of Onset" name="dateOfOnset"
+                                // rules={[{required: true, message: "Date of Oneset required"}]}
+                                >
+
+                                    <DatePicker style={{ width: "60%" }}
+                                        placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
+                                        defaultValue={
+                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
+                                                moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
+                                        }
+                                        disabledDate={disabledDate}
+                                    />
+                                </FormItem>
+                                {/* Age and Gender go here */}
+                                <FieldAgev2 name="age" visible={store.caseTypeHumanSelected} form={form}
+                                    value={
+                                        {
+                                            years: getInitialValue('years'),
+                                            months: getInitialValue('months'),
+                                            days: getInitialValue('days')
+                                        }
+                                    }
+                                />
+                                <FormItem
+                                    {...formItemLayout} label="Gender" name="gender"
+                                    initialValue={getInitialValue('gender')}
+                                    style={!store.caseTypeHumanSelected ? { display: 'none' } : { hidden: false }}>
+                                    <FieldOptionSet id="WNqjeSlrS3r" placeholder="Gender"
+                                        name='gender' form={form} />
+                                </FormItem>
+
+
+                            </Col>
+                            <Col span={11}>
+                                <FormItem hidden={true} name="event" initialValue={message.id}>
+                                    <Input />
+                                </FormItem>
+
+                                <FormItem hidden={true} name="text" initialValue={message.text}>
+                                    <Input />
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout} label="Location" name="location"
+                                    initialValue={getInitialValue('location')}>
+                                    <Input placeholder="Location (Village/Parish/Sub-county/District)" />
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout} label="Name of Submitter" name="nameOfSubmitter"
+                                    initialValue={getInitialValue('nameOfSubmitter')}>
+                                    <Input placeholder="Name of Submitter" />
+                                </FormItem>
+
+
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="Phone Number of Submitter" hidden={true}
+                                    name="phone" initialValue={message.originator}>
+                                    <Input placeholder="Phone Number of the Submitter" />
+                                </FormItem>
+
+                                <FormItem name="status_update_date" hidden={true}
+                                    initialValue={getInitialValue('status_date_update')}
+                                >
+                                    <Input />
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout} label="Patient has Signs" name="hasSigns"
+                                    initialValue={getInitialValue('hasSigns')}
+                                    style={
+                                        (store.caseTypeAnimalSelected || store.caseTypeHumanSelected) ?
+                                            { hidden: false } : { display: 'none' }}>
+                                    <FieldOptionSet id="L6eMZDJkCwX" placeholder="Patient has Signs"
+                                        name='hasSigns' form={form} />
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout} label="Suspected Disease" name="suspectedDisease"
+                                    initialValue={getInitialValue('suspectedDisease')}
+                                    style={
+                                        (store.caseTypeHumanSelected || store.caseTypeAnimalSelected) ? { hidden: false } : { display: 'none' }}>
+                                    <FieldOptionSet id="oQFHDyTSH5D" placeholder="Suspected Event"
+                                        name='suspectedDisease' form={form} />
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout} label="Source of Rumor" name="rumorSource"
+                                    initialValue={getInitialValue('rumorSource')}>
+                                    <FieldOptionSet id="x7kVdpPf6ry" placeholder="Source of Rumor"
+                                        name='rumorSource' form={form} />
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout} label="Action Taken" name="actionTaken"
+                                    initialValue={getInitialValue('actionTaken')}>
+                                    <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
+                                        name='actionTaken' form={form} />
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout} label="Followup Action" name="followupAction"
+                                    initialValue={getInitialValue('followupAction')}>
+                                    <FieldOptionSet id="ntjsL4UMoNW" placeholder="Followup Action"
+                                        name='followupAction' form={form} />
+                                </FormItem>
+
+
+
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="Comments"
+                                    name="comment" initialValue={getInitialValue('comment')}>
+                                    <TextArea rows={2} />
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane tab="Case Verification" key="caseVerification">
+                            <Row>
+                                <Col span={11}>
+                                    <FormItem
+                                        {...formItemLayout} label="case Verification Desk" 
+                                        name="caseVerificationDesk">
+                                        <Input placeholder="Case Verification Desk" />
+
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Verification" name="fieldVerification">
+                                        <FieldOptionSet id="ntjsL4UMoNW" placeholder="EMS"
+                                        name='fieldVerification' form={form} />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Field Verification" 
+                                        name="fieldVerificationDate">
+                                        <DatePicker style={{ width: "100%", right:"0px"}}
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Departure Time" 
+                                        name="timeOfDeparture">
+                                        <TimePicker format={format}/>
+
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Team Names" 
+                                        name="fieldTeamNames">
+                                        <TextArea rows={2} placeholder="Field Team Names"/>
+
+                                    </FormItem>
+
+                                </Col>
+                                <Col span={13}>
+                                    
+                                    <FormItem
+                                        {...formItemLayout} label="EMS" name="ems">
+                                        <FieldOptionSet id="ntjsL4UMoNW" placeholder="EMS"
+                                        name='ems' form={form} />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Ambulance team Notification" 
+                                        name="ambulanceNotificationDate">
+                                        <DatePicker style={{ width: "60%", right:"0px"}}
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Time of Dispatcher Notification" 
+                                        name="timeOfDispatcherNotificatio">
+                                        <TimePicker format={format} style={{width:"100%"}}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Who Received the call" 
+                                        name="whoReceivedCall" form={form}>
+                                        <Input placeholder="who received the call" />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="EMS Feedbak" 
+                                        name="emsFeedback">
+                                            <FieldOptionSet id="r9AyEn7asVy" name='emsFeedBack' 
+                                            initialValue={getInitialValue('emsFeedback')}
+                                            form={form} placeholder="EMS Feedback" />
+                                    </FormItem>
+
+                                </Col>
+                            </Row>
+                        </Tabs.TabPane>
+                        </Tabs>
+                    </Form>
             </Modal>
 
         </>

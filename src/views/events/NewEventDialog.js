@@ -1,15 +1,26 @@
 import React, { useState } from 'react'
 import { PropTypes } from '@dhis2/prop-types'
 import moment from 'moment';
-import { Modal, Form, Button, Input, DatePicker, Space, Row, Col } from 'antd'
+import { 
+    Modal, 
+    Form, 
+    Button, 
+    Input, 
+    DatePicker,
+    TimePicker, 
+    Space, 
+    Row, 
+    Col, 
+    Tabs,
+} from 'antd'
 import { FieldDistrict } from '../../orgUnit/FieldDistrict'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
-import { FieldUserGroup } from '../../events/FieldUserGroup'
 import { FieldAgev2 } from '../../events/FieldAgev2'
 import { FieldCaseTypeOptionSet } from '../../events/FieldCaseTypeOptionSet'
+import { FieldActionTakenOptionSet } from '../../events/FieldActionTakenOptionSet'
+import {FieldYesOnly} from '../../events/FieldYesOnly'
 import {
-    eventToMessage,
     eventConfs,
     saveEvent,
 } from '../../events'
@@ -20,13 +31,13 @@ import i18n from '../../locales'
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
+const format = 'HH:mm';
+const TabPane = Tabs.TabPane;
 
 export const NewEventDialog = observer(({ refetchFn }) => {
     const store = useStore()
     const [isModalVisible, setIsModalVisible] = useState(false)
-    const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Signal Event")
-    const [selectedGroups, setSelectedGroups] = useState([])
 
     const showModal = () => {
 
@@ -48,6 +59,8 @@ export const NewEventDialog = observer(({ refetchFn }) => {
         var age = ""
         for (let i in values) {
             switch (i) {
+                case 'fieldVerificationDate':
+                case 'ambulanceNotificationDate':
                 case 'followupDate':
                     if (values[i] instanceof Object) {
                         dataValues.push({
@@ -61,6 +74,15 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                         dataValues.push({
                             dataElement: eventConfs[i],
                             value: values[i].format("YYYY-MM-DD")
+                        })
+                    }
+                    break
+                case 'timeOfDeparture':
+                case 'timeOfDispatcherNotification':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("HH:mm")
                         })
                     }
                     break
@@ -135,16 +157,23 @@ export const NewEventDialog = observer(({ refetchFn }) => {
         labelCol: {
             xs: { span: 24 },
             sm: { span: 6 },
+            md: {span: 8}
         },
         wrapperCol: {
             xs: { span: 24 },
             sm: { span: 14 },
+            md: {span: 12}
         },
     };
 
     const disabledDate = (current) => {
         // Can not select days before today and today
         return current && current > moment().endOf('day');
+    }
+
+    const tabChange = (key) => {
+        console.log("current tab is ", key);
+        store.setActiveNewSignalTabKey(key)
     }
 
     return (
@@ -160,7 +189,17 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                 onOk={form.submit} onCancel={handleCancel} okText="Save"
                 confirmLoading={false} width="80%">
                 <Space direction="vertical"></Space>
-                <Form form={form} onFinish={handleOk} preserve={false}>
+                <Form form={form} onFinish={handleOk} preserve={false} 
+                    layout="horizontal"
+                    labelAlign='left'
+                    name='newEvent'
+                >
+                    <Tabs 
+                    onChange={tabChange} type="card"
+                    defaultActiveKey="newSignalDetails"
+                    activeKey={store.activeNewSignalTabKey}
+                    >
+                    <TabPane tab="Signal Details" key="newSignalDetails">
                     <Row>
                         <Col span={13}>
 
@@ -264,10 +303,7 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                                     name='gender' form={form} />
                             </FormItem>
 
-
-
                             {/* Patient has Signs goes here */}
-
 
                         </Col>
                         <Col span={11}>
@@ -312,8 +348,8 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Action Taken" name="actionTaken"
                             >
-                                <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
-                                    name='actionTaken' form={form} />
+                                <FieldActionTakenOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
+                                    name='actionTaken' form={form} identifier="newEvent"/>
                             </FormItem>
 
                             <FormItem
@@ -331,6 +367,81 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                             </FormItem>
                         </Col>
                     </Row>
+                    </TabPane>
+                        <TabPane tab="Case Verification" key="newCaseVerification">
+                            <Row>
+                                <Col span={11}>
+                                    <FormItem
+                                        {...formItemLayout} label="case Verification Desk" 
+                                        name="caseVerificationDesk">
+                                        <FieldOptionSet id="BI2CXaXdwkr" placeholder="" 
+                                        name='caseVerificationDesk' form={form} />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Verification" name="fieldVerification">
+                                        <FieldYesOnly name="fieldVerification" form={form} />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Field Verification" 
+                                        name="fieldVerificationDate">
+                                        <DatePicker style={{ width: "100%", right:"0px"}}
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Departure Time" 
+                                        name="timeOfDeparture">
+                                        <TimePicker format={format} style={{width: "100%"}}/>
+
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Team Names" 
+                                        name="fieldTeamNames">
+                                        <TextArea rows={2} placeholder="Field Team Names"/>
+
+                                    </FormItem>
+
+                                </Col>
+                                <Col span={13}>
+                                    
+                                    <FormItem
+                                        {...formItemLayout} label="EMS" name="ems">
+                                        <FieldYesOnly name="ems" form={form}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Ambulance team Notification" 
+                                        name="ambulanceNotificationDate">
+                                        <DatePicker style={{ width: "60%", right:"0px"}}
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Time of Dispatcher Notification" 
+                                        name="timeOfDispatcherNotification">
+                                        <TimePicker format={format} style={{width:"100%"}} />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Who Received the call" 
+                                        name="whoReceivedCall" form={form}>
+                                        <Input placeholder="who received the call" />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="EMS Feedbak" 
+                                        name="emsFeedback">
+                                        <FieldOptionSet id="r9AyEn7asVy" name='emsFeedBack'form={form} placeholder="EMS Feedback" />
+                                    </FormItem>
+
+                                </Col>
+                            </Row>
+                    
+                        </TabPane>
+                        </Tabs>
                 </Form>
             </Modal>
 

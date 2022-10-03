@@ -16,9 +16,12 @@ class Store {
     filteringOrgUnit = ''
     caseTypeHumanSelected = false
     caseTypeAnimalSelected = false
+    caseVerificationDeskSelected = false
     daysDisabled = false
     monthsDisabled = false
     yearsDisabled = false
+    activeSignalTabKey = "signalDetails"
+    activeNewSignalTabKey = "newSignalDetails"
     /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team',
      * 'EOC Core Staff', 'System Admin', 'National IDSR Team'
      * */
@@ -42,11 +45,14 @@ class Store {
     setDistricts = (val) => (this.districts = val)
     setCaseTypeHumanSelected = (val) => (this.caseTypeHumanSelected = val)
     setCaseTypeAnimalSelected = (val) => (this.caseTypeAnimalSelected = val)
+    setCaseVerificationDeskSelected = (val) => (this.caseVerificationDeskSelected = val)
     setFilteringPeriod = (val) => (this.filteringPeriod = val)
     setFilteringOrgUnit = (val) => (this.filteringOrgUnit = val)
     setDaysDisabled = (val) => (this.daysDisabled = val)
     setMonthsDisabled = (val) => (this.monthsDisabled = val)
     setYearsDisabled = (val) => (this.yearsDisabled = val)
+    setActiveSignalTabKey = (val) => (this.activeSignalTabKey = val)
+    setActiveNewSignalTabKey = (val) => (this.activeNewSignalTabKey = val)
 
     fetchDefaults = async () => {
         this.setLoading(true)

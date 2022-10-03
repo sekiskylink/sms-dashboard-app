@@ -27,6 +27,16 @@ export const eventConfs = {
     months: "u2aBDG7SbUa",
     days: "pi1I6gqsODF",
     gender: "t0fsTEkUl2d",
+    caseVerificationDesk: "GrDSuQi2qv8",
+    fieldVerification:"UhIfkOGN1pE",
+    fieldVerificationDate:"WiRk2uvSDrg",
+    timeOfDeparture:"Veh0X8vAFcR",
+    fieldTeamNames: "hhy3TZd68Hy",
+    ems:"betSMdWnkyo",
+    ambulanceNotificationDate:"JzkGXtDVqGg",
+    timeOfDispatcherNotification:"QL5Hx1mhr1N",
+    whoReceivedCall:"OxwrkGNaaNq",
+    emsFeedback:"jZBDTi5zElQ"
 }
 
 /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team', 'EOC Core Staff', 'System Admin', 'National IDSR Team'*/
@@ -61,6 +71,7 @@ export const fetchEvent = async (eventID) => {
 }
 
 export const eventToMessage = (e) => {
+    console.log("Keys ===>", Object.keys(eventConfs))
     const { orgUnit, dataValues, event, eventDate } = e
     var cValues = {}
     const eValues = dataValues.map(i => {

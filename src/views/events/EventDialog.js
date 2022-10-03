@@ -1,12 +1,26 @@
 import { PropTypes } from '@dhis2/prop-types'
 import React, { useState } from 'react'
 import moment from 'moment';
-import { Modal, Form, Button, Input, InputNumber, DatePicker, Space, Row, Col } from 'antd'
+import { 
+    Modal, 
+    Form, 
+    Button, 
+    Input,  
+    DatePicker, 
+    TimePicker,
+    Space, 
+    Row, 
+    Col,
+    Tabs,
+    Checkbox
+} from 'antd'
 import { FieldDistrict } from '../../orgUnit/FieldDistrict'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
 import { FieldUserGroup } from '../../events/FieldUserGroup'
 import { FieldCaseTypeOptionSet } from '../../events/FieldCaseTypeOptionSet'
+import { FieldActionTakenOptionSet } from '../../events/FieldActionTakenOptionSet'
+import { FieldYesOnly } from '../../events/FieldYesOnly'
 import {
     eventToMessage,
     eventConfs,
@@ -20,6 +34,8 @@ import { FieldAgev2 } from '../../events/FieldAgev2';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
+const format = 'HH:mm';
+const TabPane = Tabs.TabPane;
 
 export const EventDialog = observer(({ message, event, refetchFn }) => {
     const store = useStore()
@@ -27,11 +43,15 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
     const [currentEventValues, setCurrentEventValues] = useState({})
     const [modalTitle, setModleTitle] = useState("Create Alert Event")
     const [selectedGroups, setSelectedGroups] = useState([])
+    
+    const signalDetailsKey = message.id ? `signalDetals-${message.id}`: 'signalDetails'
+    const caseVerificationKey = message.id ? `caseVerification-${message.id}`: 'caseVerification'
 
     const showModal = () => {
         console.log("MESSAGE", message)
         const cValues = eventToMessage(event)
-        // console.log("eventFromMessage", cValues)
+        console.log("eventFromMessage", cValues)
+        store.setActiveSignalTabKey(signalDetailsKey)
         setCurrentEventValues(cValues)
         if ('district' in cValues) {
             setModleTitle("Update Signal Event")
@@ -46,6 +66,13 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
             default:
                 store.setCaseTypeHumanSelected(false)
                 store.setCaseTypeAnimalSelected(false)
+        }
+        switch (cValues['actionTaken']){
+            case 'Case Verification Desk':
+                // store.setActiveSignalTabKey(caseVerificationKey)
+                break
+            default:
+                store.setActiveSignalTabKey(signalDetailsKey)
         }
         setIsModalVisible(true)
     }
@@ -73,7 +100,7 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
         for (let i in values) {
             switch (i) {
                 case 'followupDate':
-                    if (values[i] instanceof Object) {
+                    if (values[i] && values[i] instanceof Object) {
                         dataValues.push({
                             dataElement: eventConfs[i],
                             value: values[i].format("YYYY-MM-DD")
@@ -88,11 +115,50 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                         })
                     }
                     break
+                case 'fieldVerificationDate':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("YYYY-MM-DD")
+                        })
+                    }
+                    break
+                case 'ambulanceNotificationDate':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("YYYY-MM-DD")
+                        })
+                    }
+                    break
+                case 'timeOfDeparture':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("HH:mm")
+                        })
+                    }
+                    break
+                case 'timeOfDispatcherNotification':
+                    if (values[i] && values[i] instanceof Object) {
+                        dataValues.push({
+                            dataElement: eventConfs[i],
+                            value: values[i].format("HH:mm")
+                        })
+                    }
+                    break
                 case 'actionTaken':
                     if (values[i] && values[i].length > 0) {
                         /*We only complet event if Action taken is present*/
                         toCompleteEvent = true
                         dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+                    }
+                    break
+                case 'ems':
+                case 'fieldVerification':
+                    if (values[i]) {
+                        dataValues.push({ dataElement: eventConfs[i], value: values[i] })
+
                     }
                     break
                 case 'age':
@@ -161,16 +227,18 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
 
     // const alertDate = moment(message.receiveddate, moment.HTML5_FMT.DATE);
     const alertDate = moment(message.receiveddate);
-    console.log("Alert Date=>", alertDate, "Received Date", message.receiveddate)
+    // console.log("Alert Date=>", alertDate, "Received Date", message.receiveddate)
 
     const formItemLayout = {
         labelCol: {
             xs: { span: 24 },
-            sm: { span: 6 },
+            sm: { span: 12 },
+            md: {span: 8}
         },
         wrapperCol: {
             xs: { span: 24 },
             sm: { span: 14 },
+            md: {span: 12}
         },
     };
 
@@ -183,6 +251,11 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
         console.log("Value:", value)
         return value
     }
+    const tabChange = (key) => {
+        // console.log("current tab is ", key);
+        store.setActiveSignalTabKey(key);
+    }
+    // console.log("==========", signalDetailsKey, store.activeSignalTabKey, caseVerificationKey)
 
     return (
         <>
@@ -204,9 +277,46 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                     </Col>
 
                 </Row>
-                <Form form={form} onFinish={handleOk} initialValues={{alertDate: alertDate}}>
+                <Form form={form} onFinish={handleOk} 
+                initialValues={{
+                    alertDate: alertDate,
+
+                    fieldVerificationDate: moment(getInitialValue('fieldVerificatioinDate'), "YYYY-MM-DD") &&
+                        moment(getInitialValue('fieldVerificationDate'), "YYYY-MM-DD").isValid() ?
+                        moment(getInitialValue('fieldVerificationDate'), "YYYY-MM-DD") : undefined,
+
+                    ambulanceNotificationDate: moment(getInitialValue('ambulanceNotificationDate'), "YYYY-MM-DD") &&
+                        moment(getInitialValue('ambulanceNotificationDate'), "YYYY-MM-DD").isValid() ?
+                        moment(getInitialValue('ambulanceNotificationDate'), "YYYY-MM-DD") : undefined,
+
+                    followupDate: moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
+                        moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
+                        moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined,
+
+                    dateOfOnset: moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") &&
+                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
+                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined, 
+
+                    timeOfDeparture: moment(getInitialValue('timeOfDeparture'), "HH:mm") &&
+                        moment(getInitialValue('timeOfDeparture'), "HH:mm").isValid() ?
+                        moment(getInitialValue('timeOfDeparture'), "HH:mm") : undefined,
+
+                    timeOfDispatcherNotification: moment(getInitialValue('timeOfDispatcherNotification'), "HH:mm") &&
+                        moment(getInitialValue('timeOfDispatcherNotification'), "HH:mm").isValid() ?
+                        moment(getInitialValue('timeOfDispatcherNotification'), "HH:mm") : undefined
+                }}
+                layout="horizontal"
+                labelAlign='left'
+                
+                >
+                <Tabs onChange={tabChange}
+                    type="card"
+                    defaultActiveKey={signalDetailsKey}
+                    activeKey={store.activeSignalTabKey}
+                >
+                    <TabPane tab="Signal Details" key={signalDetailsKey}>
                     <Row>
-                        <Col span={13}>
+                        <Col span={11}>
                             <FormItem
                                 {...formItemLayout} label="Signal Status" name="status"
                                 initialValue={getInitialValue('status')}
@@ -217,7 +327,7 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             <FormItem name="status_update_date" hidden={true}
                                 initialValue={getInitialValue('status_date_update')}
                             >
-                                <Input />
+                                <Input name="status_update_date"/>
                             </FormItem>
                             {store.IsGlobalUser &&
                                 <FormItem
@@ -238,12 +348,9 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Date of SMS Followup" name="followupDate">
                                 <DatePicker style={{ width: "100%" }}
+                                    name="followupDate"
                                     placeholder={getInitialValue('followupDate')} format="YYYY-MM-DD"
-                                    defaultValue={
-                                        moment(getInitialValue('followupDate'), "YYYY-MM-DD") &&
-                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD").isValid() ?
-                                            moment(getInitialValue('followupDate'), "YYYY-MM-DD") : undefined
-                                    }
+                                    
                                     disabledDate={disabledDate}
                                 />
                             </FormItem>
@@ -251,7 +358,7 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                                 {...formItemLayout} label="Date Signal Received"
                                 name="alertDate"
                                 hidden={false}>
-                                <DatePicker disabledDate={disabledDate}/>
+                                <DatePicker name="alertDate" disabledDate={disabledDate}/>
                             </FormItem>
 
                             <FormItem {...formItemLayout} label="Case/Event Type" name="eventType"
@@ -264,14 +371,9 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Date of Onset" name="dateOfOnset"
                             >
-
                                 <DatePicker style={{ width: "100%" }}
                                     placeholder={getInitialValue('dateOfOnset')} format="YYYY-MM-DD"
-                                    defaultValue={
-                                        moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") &&
-                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD").isValid() ?
-                                            moment(getInitialValue('dateOfOnset'), "YYYY-MM-DD") : undefined
-                                    }
+                                    name="dateOfOnSet"
                                     disabledDate={disabledDate}
                                 />
                             </FormItem>
@@ -296,24 +398,24 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             <FormItem
                                 {...formItemLayout} label="Location" name="location"
                                 initialValue={getInitialValue('location')}>
-                                <Input placeholder="Location (Village/Parish/Sub-county/District)" />
+                                <Input placeholder="Location (Village/Parish/Sub-county/District)" name="location"/>
                             </FormItem>
 
                             {/* Patient has Signs goes here */}
 
                         </Col>
-                        <Col span={11}>
+                        <Col span={13}>
                             <FormItem hidden={true} name="event" initialValue={message.id}>
-                                <Input />
+                                <Input name="event"/>
                             </FormItem>
 
                             <FormItem hidden={true} name="text" initialValue={message.text}>
-                                <Input />
+                                <Input name="text"/>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout} label="Name of Reporter" name="nameOfSubmitter"
                                 initialValue={getInitialValue('nameOfSubmitter')}>
-                                <Input placeholder="Name of Reporter" />
+                                <Input placeholder="Name of Reporter" name="nameOfSubmitter" />
                             </FormItem>
 
 
@@ -344,13 +446,13 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                                 {...formItemLayout}
                                 label="Phone Number of Submitter" hidden={true}
                                 name="phone" initialValue={message.phone}>
-                                <Input placeholder="Phone Number of the Submitter" />
+                                <Input placeholder="Phone Number of the Submitter" name="phone"/>
                             </FormItem>
 
                             <FormItem
                                 {...formItemLayout} label="Action Taken" name="actionTaken"
                                 initialValue={getInitialValue('actionTaken')}>
-                                <FieldOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
+                                <FieldActionTakenOptionSet id="GNTX1AnCPEL" placeholder="Action Taken"
                                     name='actionTaken' form={form} />
                             </FormItem>
 
@@ -369,6 +471,89 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             </FormItem>
                         </Col>
                     </Row>
+                    </TabPane>
+                    <TabPane tab="Case Verification" key={caseVerificationKey}>
+                    <Row>
+                                <Col span={11}>
+                                    <FormItem
+                                        {...formItemLayout} label="case Verification Desk" 
+                                        name="caseVerificationDesk" initialValue={getInitialValue('caseVerificationDesk')}>
+                                        <FieldOptionSet id="BI2CXaXdwkr" placeholder="" 
+                                        name='caseVerificationDesk' form={form} />
+                                    </FormItem> 
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Verification" name="fieldVerification"
+                                        initialValue={getInitialValue('fieldVerification')}
+                                        >
+                                        <FieldYesOnly name="fieldVerification" form={form} 
+                                            defaultVal={getInitialValue('fieldVerification')}
+                                            />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Field Verification" 
+                                        name="fieldVerificationDate">
+                                        <DatePicker style={{ width: "100%", right:"0px"}}
+                                        
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Departure Time" 
+                                        name="timeOfDeparture">
+                                        <TimePicker format={format} name="timeOfDeparture" />
+
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Field Team Names" 
+                                        name="fieldTeamNames" initialValue={getInitialValue('fieldTeamNames')}>
+                                        <TextArea rows={2} placeholder="Field Team Names"/>
+
+                                    </FormItem>
+
+                                </Col>
+                                <Col span={13}>
+                                    
+                                    <FormItem
+                                        {...formItemLayout} label="EMS" name="ems" initialValue={getInitialValue('ems')}
+                                        >
+                                            <FieldYesOnly name="ems" defaultVal={getInitialValue('ems')} form={form}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Date of Ambulance team Notification"
+                                        name="ambulanceNotificationDate">
+                                        <DatePicker style={{width:"100%"}}
+                                            
+                                            disabledDate={disabledDate}/>
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Time of Dispatcher Notification" 
+                                        name="timeOfDispatcherNotification">
+                                        <TimePicker format={format} style={{width:"100%"}} name="timeOfDispatcherNotification" />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="Who Received the call" 
+                                        name="whoReceivedCall" form={form} placeholder="whoReceivedCall"
+                                         initialValue={getInitialValue('whoReceivedCall')}
+                                        >
+                                        <Input name="whoReceivedCall" />
+                                    </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout} label="EMS Feedbak" 
+                                        name="emsFeedback" initialValue={ getInitialValue('emsFeedback')} placeholder="EMS Feedback">
+                                        <FieldOptionSet id="r9AyEn7asVy" form={form} name="emsFeedback"/>
+                                    </FormItem>
+
+                                </Col>
+                            </Row>
+                        </TabPane>
+                        </Tabs>
                 </Form>
             </Modal>
 
