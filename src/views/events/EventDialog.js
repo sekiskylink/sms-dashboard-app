@@ -12,9 +12,11 @@ import {
     Row, 
     Col,
     Tabs,
-    Checkbox
+    Checkbox,
+    message as antdMessage
 } from 'antd'
 import { FieldDistrict } from '../../orgUnit/FieldDistrict'
+import { FieldDistrict2 } from '../../orgUnit/FieldDistrict2'
 import { FieldOptionSet } from '../../events/FieldOptionSet'
 import { FieldStatusOptionSet } from '../../events/FieldStatusOptionSet'
 import { FieldUserGroup } from '../../events/FieldUserGroup'
@@ -216,12 +218,22 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
             eventPayload['orgUnit'] = eventConfs["nationalOrgUnit"]
         }
         console.log(JSON.stringify(eventPayload));
-        saveEvent(eventPayload).then((value) => {
+        const resp = saveEvent(eventPayload)
+        /*
+        .then((value) => {
             if (value) {
                 refetchFn()
             }
-        })
+        })*/
         setIsModalVisible(false);
+        if (resp){
+            refetchFn()
+            antdMessage.success({
+                content: "Saved Successfully",
+            })
+        }else {
+            antdMessage.error("Failed to Save", 10);
+        }
     }
     const [form] = Form.useForm();
 
@@ -329,14 +341,12 @@ export const EventDialog = observer(({ message, event, refetchFn }) => {
                             >
                                 <Input name="status_update_date"/>
                             </FormItem>
-                            {store.IsGlobalUser &&
-                                <FormItem
-                                    {...formItemLayout} label="District" name="district"
-                                    rules={[{ required: true, message: "District is required" }]}
-                                    initialValue={getInitialValue('district')}>
-                                    <FieldDistrict name="district" form={form} />
-                                </FormItem>
-                            }
+                            <FormItem
+                                {...formItemLayout} label="District" name="district"
+                                rules={[{ required: true, message: "District is required" }]}
+                                initialValue={getInitialValue('district')}>
+                                <FieldDistrict2 name="district" form={form} />
+                            </FormItem>
                             {/* {store.IsGlobalUser &&
                                 <FormItem
                                     {...formItemLayout} label='Notify Users' name='notifyusers'

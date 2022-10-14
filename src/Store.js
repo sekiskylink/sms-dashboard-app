@@ -9,6 +9,8 @@ class Store {
     IsGlobalUser = false;
     loading = false;
     defaultOrgUnit = ''
+    userOrgUnits = []
+    userRegions = []
     searchOrgUnit = ''
     districts = []
     userGroups = []
@@ -22,6 +24,7 @@ class Store {
     yearsDisabled = false
     activeSignalTabKey = "signalDetails"
     activeNewSignalTabKey = "newSignalDetails"
+    activeForwardSignalTabKey = "forward-signalDetails"
     /* 'EOC Alert Verification Team', 'EOC Team', 'EOC Decision Team',
      * 'EOC Core Staff', 'System Admin', 'National IDSR Team'
      * */
@@ -41,6 +44,7 @@ class Store {
     setUserGroups = val => (this.userGroups = val)
     setUserGlobalStatus = (val) => (this.IsGlobalUser = val)
     setDefaultOrgUnit = (val) => (this.defaultOrgUnit = val)
+    setUserOrgUnits = (val) => (this.userOrgUnits = val)
     setSearchOrgUnit = (val) => (this.searchOrgUnit = val)
     setDistricts = (val) => (this.districts = val)
     setCaseTypeHumanSelected = (val) => (this.caseTypeHumanSelected = val)
@@ -53,15 +57,16 @@ class Store {
     setYearsDisabled = (val) => (this.yearsDisabled = val)
     setActiveSignalTabKey = (val) => (this.activeSignalTabKey = val)
     setActiveNewSignalTabKey = (val) => (this.activeNewSignalTabKey = val)
+    setActiveForwardSignalTabKey = (val) => (this.activeForwardSignalTabKey = val)
 
     fetchDefaults = async () => {
         this.setLoading(true)
         const [orgUnits, userGroups, orgs] = await Promise.all(
-            [this.d2.currentUser.getOrganisationUnits({ fields: 'id,name' }),
+            [this.d2.currentUser.getOrganisationUnits({ fields: 'id,name,level,parent[id,name]' }),
             this.d2.currentUser.getUserGroups({ fields: 'id,name' })
             ])
-        console.log("===", orgUnits.toArray(), "---", userGroups.toArray())
         this.setUserGroups(userGroups.toArray());
+        console.log("===", orgUnits.toArray(), "--->")
 
         const groupIDs = userGroups.toArray().map(g => g.id)
         /* compare with the global allowedUserGroups - if any usergroup exists in global*/
@@ -70,16 +75,19 @@ class Store {
 
         if (orgUnits.toArray().length > 0) {
             this.setDefaultOrgUnit(orgUnits.toArray()[0].id)
+            // this.setUserOrgUnits(orgUnits.toArray().filter((ou)=> { 
+            //     if (ou.level == 3) return {id: ou.id, name:ou.name}})).map((i)=> {return {id:i.id, displayName: i.name}})
             this.setFilteringOrgUnit(orgUnits.toArray()[0].id) /*just set this as filtering orgUnit*/
             this.setSearchOrgUnit(orgUnits.toArray()[0].id)
         }
+        console.log("===", orgUnits.toArray(), "--->", this.userOrgUnits)
 
         /*set districts */
         getInstance().then(d2 => {
             const api = d2.Api.getApi()
             const p = api.get("organisationUnits", {
                 level: "3",
-                fields: "id,displayName",
+                fields: "id,displayName,parent[id,name,level]",
                 paging: false
             })
             Promise.all([p]).then(
@@ -89,6 +97,19 @@ class Store {
                     this.setDistricts(organisationUnits)
                 }
             )
+            const q = api.get("me", {
+                fields: "organisationUnits[id,displayName,level,parent[id,name,level]]",
+                paging: false
+            })
+            Promise.all([q]).then(
+                (values) => {
+                    const {organisationUnits} = values[0]
+                    this.setUserOrgUnits(organisationUnits.filter((ou)=> { 
+                        if (ou.level == 3) return {id: ou.id, name:ou.name}})).map((i)=> {return {id:i.id, displayName: i.name}} )
+                    this.setDistricts(organisationUnits)
+                }
+            )
+
         }
         )
 
@@ -134,8 +155,10 @@ class Store {
                 Promise.all([p]).then((values) => {
                     console.log("Response After Saving:=>", values)
                 })
+                return {success: true, message: "Saved Successfully"}
             } catch {
                 console.log("Error Saving Event: ", eventPayload)
+                return {success: false, message: "Error Saving Event"}
             }
         })
     }

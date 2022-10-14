@@ -96,9 +96,10 @@ export const ReceivedEventsList = observer(() => {
 
             <header className={styles.header}>
 
-                {store.IsGlobalUser &&
+                {/*{store.IsGlobalUser &&
                     <Filter />
-                }
+                }*/}
+                <Filter />
                 <NewEventDialog refetchFn={refetchAndClear} />
 
             </header>

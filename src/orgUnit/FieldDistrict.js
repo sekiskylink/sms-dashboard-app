@@ -4,12 +4,15 @@ import propTypes from 'prop-types'
 
 import i18n from '../locales'
 import { useReadOrgUnitsQuery } from './useReadOrgUnitsQuery'
+import { observer} from 'mobx-react-lite'
+import {useStore} from '../context/context'
 
 const { Option } = Select;
 
-export const FieldDistrict = ({ form, name, value }) => {
+export const FieldDistrict = observer(({ form, name, value }) => {
     const [selected, setSelected] = useState(value)
     const { loading, error, data } = useReadOrgUnitsQuery()
+    const store = useStore()
     if (loading) {
         return (
             <Select placeholder={i18n.t('District')}>
@@ -25,6 +28,7 @@ export const FieldDistrict = ({ form, name, value }) => {
         )
     }
     const { organisationUnits } = data.orgUnits
+    
     return (
         <Select
             showSearch
@@ -54,7 +58,7 @@ export const FieldDistrict = ({ form, name, value }) => {
             }
         </Select>
     )
-}
+})
 
 FieldDistrict.propTypes = {
     name: propTypes.string.isRequired,

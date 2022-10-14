@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDataQuery } from '@dhis2/app-runtime'
+import replace from "lodash"
 import Plot from 'react-plotly.js';
 import { useStore } from '../context/context'
 import { observer } from 'mobx-react-lite'
@@ -31,7 +32,7 @@ export const BarGraph = observer(({ title, dataDimension }) => {
                         <Plot
                             data={[
                                 {
-                                    x: data.rows.map((r) => r[0]),
+                                    x: data.rows.map((r) => r[0].length >0 ? r[0]: "No Response"),
                                     y: data.rows.map((r) => r[1]),
                                     type: 'bar',
                                     name: title ? title : "",

@@ -49,9 +49,12 @@ export const FieldActionTakenOptionSet = observer(({id, form, name, placeholder,
                                 store.setActiveNewSignalTabKey(`newCaseVerification`)
                                 // console.log("Action Taken is:::: ", store.activeSignalTabKey, "===>", identifier)
 
-                            } else{
-                                store.setActiveSignalTabKey(`caseVerification-${event}`)
+                            } else if (identifier === 'forwardEvent'){
+                                store.setActiveForwardSignalTabKey(`forward-caseVerification-${event}`)
                                 // console.log("Action Taken is:::: ", store.activeSignalTabKey)
+                            } else {
+                                store.setActiveSignalTabKey(`caseVerification-${event}`)
+
                             }
                             break
                         default:

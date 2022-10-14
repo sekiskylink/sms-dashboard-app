@@ -1,15 +1,15 @@
 import { useDataQuery } from '@dhis2/app-runtime'
 
 export const ORG_UNITS_QUERY = {
-    orgUnits: {
-        resource: 'organisationUnits',
+    me: {
+        resource: 'me',
         params: {
             level: 3,
             pageSize: 150,
-            fields: 'id,displayName,parent[id,name]',
+            fields: 'organisationUnits[id,displayName,level,parent[id,name]]',
             order: 'asc',
         },
     },
 }
 
-export const useReadOrgUnitsQuery = () => useDataQuery(ORG_UNITS_QUERY)
+export const useReadMeQuery = () => useDataQuery(ORG_UNITS_QUERY)

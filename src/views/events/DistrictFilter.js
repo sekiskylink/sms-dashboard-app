@@ -36,6 +36,11 @@ const DistrictFieldSelect = observer(() => {
 
     const districtsOptions = store.districts.map((d) => (
         <Option key={d.id} label={d.displayName} value={d.id}>{d.displayName}</Option>))
+
+
+    const userOrgUnitsOptions = store.userOrgUnits.map((d) => (
+        <Option key={d.id} label={d.displayName} value={d.id}>{d.displayName}</Option>))
+
     return (
         <Select
             label={i18n.t('Filter by District')}
@@ -44,15 +49,18 @@ const DistrictFieldSelect = observer(() => {
             placeholder={"Select District"}
             size={"large"}
             className={styles.filter}
+            selected={store.defaultOrgUnit}
         >
             {store.IsGlobalUser ?
                 <Option key={eventConfs.nationalOrgUnit}
                     value={eventConfs.nationalOrgUnit} label={"National"}>National
-                </Option> :
+                </Option> : userOrgUnitsOptions
+            }   
+            {/*
                 <Option key={store.defaultOrgUnit}
                     value={store.defaultOrgUnit} label={"My OrganisationUnit"}>My OrganisationUnit
                 </Option>
-            }
+            */}
 
             {store.IsGlobalUser &&
                 districtsOptions
