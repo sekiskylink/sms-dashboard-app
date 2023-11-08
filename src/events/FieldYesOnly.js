@@ -28,5 +28,5 @@ export const FieldYesOnly = ({form, name, defaultVal}) => {
 
 FieldYesOnly.propTypes = {
     name: propTypes.string.isRequired,
-    defaultVal: propTypes.bool
+    // defaultVal: propTypes.string
 }

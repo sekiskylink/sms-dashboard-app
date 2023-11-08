@@ -217,7 +217,7 @@ export const NewEventDialog = observer(({ refetchFn }) => {
                                 label="Reporter Phone" hidden={false}
                                 name="phone"
                                 rules={[{
-                                    pattern: "^256(3[19]|41|7[0125789])[0-9]{7}$",
+                                    pattern: "^256(3[19]|41|7[012456789])[0-9]{7}$",
                                     message: "Invalid phone number format"
                                 }]}
                             >

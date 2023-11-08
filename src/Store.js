@@ -109,6 +109,20 @@ class Store {
                     this.setDistricts(organisationUnits)
                 }
             )
+            const r = api.get(
+                "organisationUnits", {
+                    filter: "organisationUnitGroups.name:ilike:Kampala",
+                    fields: "id,displayName,parent[id,name,level]", 
+                    paging: false
+                }
+            )
+            Promise.all([r]).then(
+                (values) => {
+                    const {organisationUnits} = values[0]
+                    this.setDistricts([...this.districts, ...organisationUnits])
+                    console.log("@@@@@@@@", this.districts)
+                }
+            )
 
         }
         )

@@ -10,6 +10,22 @@ import {useStore} from '../context/context'
 
 const { Option } = Select;
 
+const userDistricts = (ou) => {
+    return ou.flatMap((o)=>{
+      if (o.level === 2) {
+      return o.children
+    } else if (o.level === 1) {
+      return o.children.children
+    } else if (o.level === 3) {
+        return [
+            {displayName: o.displayName, id: o.id}
+        ]
+    }
+    return []
+    })
+    
+  }
+
 export const FieldDistrict2 = observer(({ form, name, value }) => {
     const [selected, setSelected] = useState(value)
     const store = useStore()
@@ -31,6 +47,7 @@ export const FieldDistrict2 = observer(({ form, name, value }) => {
             )
         }
         const { organisationUnits } = data.orgUnits
+        // console.log("XXXXXXXXX", organisationUnits)
         
         return (
             <Select
@@ -79,6 +96,9 @@ export const FieldDistrict2 = observer(({ form, name, value }) => {
             )
         }
         const { organisationUnits } = data.me
+        console.log("USER OUs", organisationUnits)
+        const districts = userDistricts(organisationUnits) 
+        console.log("User Districts ", userDistricts(organisationUnits))
         
         return (
             <Select
@@ -101,11 +121,12 @@ export const FieldDistrict2 = observer(({ form, name, value }) => {
                 }}
             >
                 {
-                    organisationUnits.map((d) => (
-                        <Option key={d.id} value={d.id}>
+                    districts.map((d) => {
+
+                        return (<Option key={d.id} value={d.id}>
                             {d.displayName}
-                        </Option>
-                    ))
+                        </Option>)
+                    })
                 }
             </Select>
         )
