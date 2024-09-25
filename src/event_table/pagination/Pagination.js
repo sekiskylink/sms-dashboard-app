@@ -38,6 +38,9 @@ export const Pagination = observer(({ page, pageCount, pageSize, total }) => {
             }),
         })
     }
+    if (total <= 0) {
+        return (<></>)
+    }
 
     return (
         <div className={styles.container}>
@@ -45,7 +48,7 @@ export const Pagination = observer(({ page, pageCount, pageSize, total }) => {
                 {i18n.t('Show')}
                 <SingleSelect
                     dense
-                    selected={pageSize.toString()}
+                    selected={pageSize}
                     onChange={navigateToNewPageSize}
                     className={styles.select}
                 >
@@ -80,7 +83,7 @@ export const Pagination = observer(({ page, pageCount, pageSize, total }) => {
                 <SingleSelect
                     dense
                     inputWidth="600px"
-                    selected={page.toString()}
+                    selected={page}
                     onChange={({ selected }) => navigateToPage(selected)}
                     className={styles.select}
                 >

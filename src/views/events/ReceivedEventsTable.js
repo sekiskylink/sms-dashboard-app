@@ -39,11 +39,9 @@ export const ReceivedEventsTable = ({
                     <br />
                     <Time time={message.receiveddate} />
                 </TableCell>
-                {/* XXX fix event status */}
                 <TableCell>
                     {message.status}
                 </TableCell>
-                {/* DialogForm for Updates goes here*/}
                 <TableCell>
                     <EventDialog message={message} event={event} refetchFn={refetchFn} />
                 </TableCell>

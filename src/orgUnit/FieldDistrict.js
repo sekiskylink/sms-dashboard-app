@@ -1,7 +1,7 @@
 import { Select } from 'antd'
 import React, { useState } from 'react'
 import propTypes from 'prop-types'
-
+import { orderBy } from "lodash";
 import i18n from '../locales'
 import { useReadOrgUnitsQuery } from './useReadOrgUnitsQuery'
 import { observer} from 'mobx-react-lite'
@@ -28,7 +28,7 @@ export const FieldDistrict = observer(({ form, name, value }) => {
         )
     }
     const { organisationUnits } = data.orgUnits
-    
+
     return (
         <Select
             showSearch
@@ -50,7 +50,7 @@ export const FieldDistrict = observer(({ form, name, value }) => {
             }}
         >
             {
-                organisationUnits.map((d) => (
+                orderBy(organisationUnits, "displayName", "asc").map((d) => (
                     <Option key={d.id} value={d.id}>
                         {d.displayName}
                     </Option>

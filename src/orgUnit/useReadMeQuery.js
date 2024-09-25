@@ -6,7 +6,7 @@ export const ORG_UNITS_QUERY = {
         params: {
             level: 3,
             pageSize: 150,
-            fields: 'organisationUnits[id,displayName,level,parent[id,name],children[id,name,displayName]]',
+            fields: 'organisationUnits[id,displayName,level,parent[id,name],children[id,name,displayName,children[id,name,displayName]]]',
             order: 'asc',
         },
     },

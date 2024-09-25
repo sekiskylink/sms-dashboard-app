@@ -6,9 +6,9 @@ export const ORG_UNITS_QUERY = {
         params: {
             level: 3,
             pageSize: 160,
-            fields: 'id,displayName,parent[id,name]',
+            fields: 'id,displayName,parent[id,name],children[id,displayName]',
             filter:['level:eq:3', 'organisationUnitGroups.name:ilike:kampala'],
-            order: 'asc',
+            order: 'displayName:asc',
             rootJunction: 'OR'
         },
     },

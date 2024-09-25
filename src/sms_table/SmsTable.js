@@ -92,11 +92,17 @@ export const SmsTable = observer(({
                 }
             </TableBody>
             <TableFoot>
-                <TableRow>
-                    <TableCell colSpan={String(columns.length)}>
-                        <Pagination {...pager} />
-                    </TableCell>
-                </TableRow>
+                {
+                    pager.total > 0 ?
+                    (
+                        <TableRow>
+                            <TableCell colSpan={String(columns.length)}>
+                                <Pagination {...pager} />
+                            </TableCell>
+                        </TableRow>
+                    ):
+                    (<></>)
+                }
             </TableFoot>
         </Table>
     )

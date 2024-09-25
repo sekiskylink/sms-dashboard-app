@@ -146,3 +146,41 @@ export const getUserEventIDs = async () => {
     }
     return []
 }
+
+export const getUserEventIDs2 = async () => {
+    const d2 = await getInstance()
+    const api = d2.Api.getApi()
+
+    const currentUser = d2.currentUser
+    const orgUnitsModelCollection = await currentUser.getOrganisationUnits()
+    const myOrgUnits = orgUnitsModelCollection.toArray().map(org => org.id)
+    
+    if (myOrgUnits.length > 0) {
+        console.log("Current User orgUnits:=======>", myOrgUnits)
+        let allEvents = []
+
+        // Iterate over all org units
+        for (const orgUnit of myOrgUnits) {
+            try {
+                const { events } = await api.get("events", {
+                    program: eventConfs.program,
+                    paging: false,
+                    fields: 'event',
+                    orgUnit: orgUnit,
+                    ouMode: 'DESCENDANTS'
+                })
+                console.log(`Events for orgUnit ${orgUnit}:`, events.map(e => e.event))
+                
+                // Collect all events
+                allEvents = [...allEvents, ...events.map(e => e.event)]
+            } catch (error) {
+                console.log(`Error fetching events for orgUnit ${orgUnit}:`, error)
+            }
+        }
+
+        return allEvents
+    }
+
+    return []
+}
+

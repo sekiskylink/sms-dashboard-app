@@ -30,7 +30,7 @@ class Store {
      * */
     allowedUserGroups = [
         'PiU1BMFQrhR', 'enC5vRupltp', 'tljMIEjx4gD',
-        'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK'
+        'VE4GuHR9XJQ', 'LzzPKeMVe6j', 'Y1wNsABGXtK', 'z6FUVD7VcLI'
     ];
 
     constructor(d2) {
@@ -61,12 +61,11 @@ class Store {
 
     fetchDefaults = async () => {
         this.setLoading(true)
-        const [orgUnits, userGroups, orgs] = await Promise.all(
+        const [orgUnits, userGroups] = await Promise.all(
             [this.d2.currentUser.getOrganisationUnits({ fields: 'id,name,level,parent[id,name]' }),
             this.d2.currentUser.getUserGroups({ fields: 'id,name' })
             ])
         this.setUserGroups(userGroups.toArray());
-        console.log("===", orgUnits.toArray(), "--->")
 
         const groupIDs = userGroups.toArray().map(g => g.id)
         /* compare with the global allowedUserGroups - if any usergroup exists in global*/
@@ -74,13 +73,15 @@ class Store {
         this.setUserGlobalStatus(isGlobal)
 
         if (orgUnits.toArray().length > 0) {
+            console.log("===", orgUnits.toArray(), "--->")
             this.setDefaultOrgUnit(orgUnits.toArray()[0].id)
             // this.setUserOrgUnits(orgUnits.toArray().filter((ou)=> { 
             //     if (ou.level == 3) return {id: ou.id, name:ou.name}})).map((i)=> {return {id:i.id, displayName: i.name}})
             this.setFilteringOrgUnit(orgUnits.toArray()[0].id) /*just set this as filtering orgUnit*/
             this.setSearchOrgUnit(orgUnits.toArray()[0].id)
         }
-        console.log("===", orgUnits.toArray(), "--->", this.userOrgUnits)
+        // console.log("===", orgUnits.toArray(), "--->", this.userOrgUnits)
+        console.log("****>", orgUnits.toArray(), ".....", this.filteringOrgUnit)
 
         /*set districts */
         getInstance().then(d2 => {
@@ -98,15 +99,30 @@ class Store {
                 }
             )
             const q = api.get("me", {
-                fields: "organisationUnits[id,displayName,level,parent[id,name,level]]",
+                fields: "organisationUnits[id,name,displayName,level,parent[id,name],children[id,name,displayName,children[id,name,displayName]]]",
                 paging: false
             })
             Promise.all([q]).then(
                 (values) => {
                     const {organisationUnits} = values[0]
                     this.setUserOrgUnits(organisationUnits.filter((ou)=> { 
-                        if (ou.level == 3) return {id: ou.id, name:ou.name}})).map((i)=> {return {id:i.id, displayName: i.name}} )
-                    this.setDistricts(organisationUnits)
+                        if (ou.level == 3) return {id: ou.id, name:ou.name}
+                    })).map((i)=> {return {id:i.id, displayName: i.name}} )
+                    if (organisationUnits !== undefined && organisationUnits.level === 1){
+                        const national = [{
+                            id: organisationUnits.id, 
+                            displayName: organisationUnits.displayName,
+                            name: organisationUnits.name
+                        }]
+                        this.setDistricts([...national, ...organisationUnits.children.children])
+                    } else if (organisationUnits.level === 2){
+                        this.setDistricts(organisationUnits.children)
+
+                    } else if (organisationUnits.level ===3){
+                        this.setDistricts(organisationUnits)
+                    }
+                    // this.setDistricts(organisationUnits)
+                    // console.log("@@@@@@@@>", this.districts)
                 }
             )
             const r = api.get(
@@ -120,7 +136,7 @@ class Store {
                 (values) => {
                     const {organisationUnits} = values[0]
                     this.setDistricts([...this.districts, ...organisationUnits])
-                    console.log("@@@@@@@@", this.districts)
+                    // console.log("@@@@@@@@", this.districts)
                 }
             )
 
